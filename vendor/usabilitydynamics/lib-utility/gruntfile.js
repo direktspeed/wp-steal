@@ -2,23 +2,48 @@
  * Library Build.
  *
  * @author potanin@UD
- * @version 1.1.2
+ * @version 1.2.0
  * @param grunt
  */
-module.exports = function build( grunt ) {
+module.exports = function buildLibrary( grunt ) {
 
-  grunt.initConfig( {
+  // Require Utility Modules.
+  var joinPath  = require( 'path' ).join;
+  var findup    = require( 'findup-sync' );
+
+  // Determine Paths.
+  var _paths = {
+    composer: findup( 'composer.json' ),
+    vendor: findup( 'vendor' ),
+    phpTests: findup( 'test/php' ),
+    jsTests: findup( 'test/js' ),
+    autoload: findup( 'vendor/autoload.php' ) || findup( '**/autoload.php' )
+  };
+
+  grunt.initConfig({
 
     // Read Composer File.
-    pkg: grunt.file.readJSON( 'composer.json' ),
+    package: grunt.file.readJSON( _paths.composer ),
+
+    // PHP Unit Tests.
+    phpunit: {
+      classes: {
+        dir: joinPath( _paths.phpTests, '*.php' )
+      },
+      options: {
+        bin: 'phpunit',
+        bootstrap: _paths.autoload,
+        colors: true
+      }
+    },
 
     // Generate Documentation.
     yuidoc: {
       compile: {
-        name: '<%= pkg.name %>',
-        description: '<%= pkg.description %>',
-        version: '<%= pkg.version %>',
-        url: '<%= pkg.homepage %>',
+        name: '<%= package.name %>',
+        description: '<%= package.description %>',
+        version: '<%= package.version %>',
+        url: '<%= package.homepage %>',
         options: {
           paths: [ 'lib', 'scripts' ],
           outdir: 'static/codex/'
@@ -53,16 +78,16 @@ module.exports = function build( grunt ) {
         interval: 100,
         debounceDelay: 500
       },
+      php: {
+        files: [ 'lib/class-*.php' ],
+        tasks: [ 'phpunit' ]
+      },
       less: {
-        files: [
-          'styles/src/*.*'
-        ],
+        files: [ 'styles/src/*.*' ],
         tasks: [ 'less' ]
       },
       js: {
-        files: [
-          'scripts/src/*.*'
-        ],
+        files: [ 'scripts/src/*.*' ],
         tasks: [ 'uglify' ]
       }
     },
@@ -153,7 +178,7 @@ module.exports = function build( grunt ) {
         reporter: 'list',
         requires: [ 'should' ]
       },
-      all: [ 'test/*.js' ]
+      all: [ joinPath( _paths.jsTests, '*.js' ) ]
     },
 
     // Usage Tests.
@@ -164,9 +189,7 @@ module.exports = function build( grunt ) {
         ui: 'exports',
         bail: false
       },
-      all: [
-        'test/*.js'
-      ]
+      all: [ joinPath( _paths.jsTests, '*.js' ) ]
     }
 
   });
@@ -183,14 +206,24 @@ module.exports = function build( grunt ) {
   grunt.loadNpmTasks( 'grunt-shell' );
   grunt.loadNpmTasks( 'grunt-mocha-cli' );
   grunt.loadNpmTasks( 'grunt-mocha-cov' );
+  grunt.loadNpmTasks( 'grunt-phpunit' );
 
   // Register NPM Tasks.
-  grunt.registerTask( 'default', [ 'markdown', 'less' , 'yuidoc', 'uglify' ] );
+  grunt.registerTask( 'default',        [ 'build' ] );
+
+  // Installation.
+  grunt.registerTask( 'install',        [ 'build' ] );
+
+  // Build Task.
+  grunt.registerTask( 'build',          [ 'markdown', 'less' , 'yuidoc', 'uglify' ] );
+
+  // Run Unit Tests.
+  grunt.registerTask( 'test',           [ 'phpunit', 'mochacli:all', 'mochacov:all' ] );
 
   // Build Distribution.
-  grunt.registerTask( 'distribution', [ 'mochacli:all', 'mochacov:all', 'clean:all', 'markdown', 'less:production', 'uglify:production' ] );
+  grunt.registerTask( 'distribution',   [ 'mochacli:all', 'mochacov:all', 'clean:all', 'markdown', 'less:production', 'uglify:production' ] );
 
   // Update Environment.
-  grunt.registerTask( 'update', [ 'clean:update', 'shell:update' ] );
+  grunt.registerTask( 'update',         [ 'clean:update', 'shell:update' ] );
 
 };

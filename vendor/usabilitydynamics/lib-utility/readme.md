@@ -6,6 +6,7 @@
 
 ## Utility Methods
 
+ - extend()
  - defaults()
  - pluralize()
  - singularize()
@@ -19,6 +20,17 @@
 0.2.4
  - Added Utility::hashify_file_name() method;
  - Added seperator options to Utility:;create_slug() to support things such as "::"
+
+## Usage
+
+```PHP
+// Extend an Array or Object with another for easily setting of defaults. This is similar to extend() but in reverse.
+$settings = UsabilityDynamics\Utility::defaults( $configurationObject, $defaultsObject );
+
+// Find composer.json file and return as Object.
+$composer = UsabilityDynamics\Utility::findUp( 'composer.json', __DIR__ );
+echo "Versio is {$composer->version}."
+```
 
 ## License
 

@@ -23,7 +23,7 @@ namespace UsabilityDynamics {
        * @property $version
        * @type {Object}
        */
-      static public $version = '0.2.1';
+      static public $version = '0.2.2';
 
       /**
        * Prefix for option keys to unique
@@ -94,6 +94,15 @@ namespace UsabilityDynamics {
       private $_store = false;
 
       /**
+       * For transient storage.
+       *
+       * @static
+       * @property $_expiration
+       * @type {String}
+       */
+      private $_expiration = 60;
+
+      /**
        * Toggle Debugger.
        *
        * @static
@@ -152,18 +161,23 @@ namespace UsabilityDynamics {
         ));
 
         // Load Schema.
-        if( $args->schema ) {
+        if( isset( $args->schema ) && $args->schema ) {
           $this->set_schema( $args->schema );
         }
 
         // Set Storage Location(s).
-        if( $args->store ) {
+        if( isset( $args->store ) && $args->store ) {
           $this->_store = $args->store;
         }
 
         // Set Storage Key.
-        if( $args->key ) {
+        if( isset( $args->key ) && $args->key ) {
           $this->_key = $args->key;
+        }
+
+        // Set transient vxpiration value.
+        if( isset( $args->expiration ) && $args->expiration ) {
+          $this->_expiration = $args->expiration;
         }
 
         // Set Format to enforce.
@@ -380,16 +394,64 @@ namespace UsabilityDynamics {
       /**
        * Commit Settings to Storage.
        *
+       * * site_options - For WordPress, falls back to option if not in multisite.
+       * * options      - For WordPress, stores in blog options.
+       *
+       * @author potanin@UD
+       * @method commit
        */
       public function commit() {
 
+        $_data = $this->_data;
+
+        // Exclude protected keys.
+        foreach( (array) $_data as $key => $value ) {
+
+          if( substr( $key, 0, 2 ) === '__' ) {
+            unset( $_data[ $key ] );
+          }
+
+        }
+
         switch( $this->_store ) {
 
+          case 'transient':
+            $_value = json_encode( $_data, JSON_FORCE_OBJECT );
+
+            if( function_exists( 'set_transient' ) ) {
+              $_value = set_transient( $this->_key, $_value, $this->_expiration );
+            }
+
+          break;
+
+          case 'site_transient':
+
+            $_value = json_encode( $_data, JSON_FORCE_OBJECT );
+
+            if( function_exists( 'set_site_transient' ) ) {
+              $_value = set_site_transient( $this->_key, $_value, $this->_expiration );
+            }
+
+          break;
+
+          case 'site_options':
+
+            $_value = json_encode( $_data, JSON_FORCE_OBJECT );
+
+            if( function_exists( 'update_site_option' ) ) {
+              $_value = update_site_option( $this->_key, $_value );
+            }
+
+          break;
+
           case 'options':
-            // Convert to JSON String.
-            $_value = json_encode( $this->_data, JSON_FORCE_OBJECT );
-            $_value = \update_option( $this->_key, $_value );
-            break;
+            $_value = json_encode( $_data, JSON_FORCE_OBJECT );
+
+            if( function_exists( 'update_option' ) ) {
+              $_value = update_option( $this->_key, $_value );
+            }
+
+          break;
 
         }
 
@@ -409,9 +471,12 @@ namespace UsabilityDynamics {
       public function flush() {
 
         switch( $this->_store ) {
-
           case 'options':
             if( function_exists( 'delete_option' ) ) {
+              delete_option( $this->_key );
+            }
+          case 'site_options':
+            if( function_exists( 'delete_site_option' ) ) {
               delete_option( $this->_key );
             }
           break;
@@ -426,6 +491,11 @@ namespace UsabilityDynamics {
        *
        */
       public function _validate() {
+
+        if( !class_exists( 'JsonSchema\Validator' ) ) {
+          return;
+        }
+
         $validator = new \JsonSchema\Validator();
 
         // Process Validation.
@@ -471,9 +541,14 @@ namespace UsabilityDynamics {
 
           // WordPress Site Options.
           case 'options':
+          case 'site_options':
 
             // Load from options.
-            $_value = \get_option( $this->_key );
+            if( $this->_store == 'site_options' ) {
+              $_value = \get_site_option( $this->_key );
+            } else {
+              $_value = \get_option( $this->_key );
+            }
 
             // If already an array it must have been serialized
             if( gettype( $_value ) === 'array' ) {

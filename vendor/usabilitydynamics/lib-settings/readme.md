@@ -18,6 +18,10 @@ Storage module is developed for client-side persistant storing of key & value pa
 
 Storage attempts to save data into localStorage, if the browser supports it. Otherwise we fallback to Cookie storage.
 
+## Usage Notes
+* Root keys that start with __ will never be committed to storage.
+* There are four types of storage types available - "option", "site_meta", "transient" and "site_transient".
+
 ## Settings Usage
 
 ```php

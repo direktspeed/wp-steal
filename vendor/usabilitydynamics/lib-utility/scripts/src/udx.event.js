@@ -5,32 +5,32 @@
  *
  * @original https://github.com/hij1nx/EventEmitter2/
  * @version 0.4
- * @module ud
- * @submodule event 
  * @author team@UD
  */
 
+define( 'udx.event', function() {
+
   var ud = ( typeof ud === 'object' ) ? ud : {};
 
-  var isArray = Array.isArray ? Array.isArray : function _isArray(obj) {
-    return Object.prototype.toString.call(obj) === "[object Array]";
+  var isArray = Array.isArray ? Array.isArray : function _isArray( obj ) {
+    return Object.prototype.toString.call( obj ) === "[object Array]";
   };
 
   function init() {
     this._events = {};
 
-    if (this._conf) {
-      configure.call(this, this._conf);
+    if( this._conf ) {
+      configure.call( this, this._conf );
     }
 
   }
 
-  function configure(conf) {
-    
+  function configure( conf ) {
+
     this._conf = conf || ud.event.prototype.defaults;
-    
+
     console.log( 'configure', this._conf );
-    if (this._conf.wildcard) {
+    if( this._conf.wildcard ) {
       this.listenerTree = {};
     }
 
@@ -41,121 +41,120 @@
   // It has zero elements if no any matches found and one or more
   // elements (leafs) if there are matches
   //
-  function searchListenerTree(handlers, type, tree, i) {
-    if (!tree) {
+  function searchListenerTree( handlers, type, tree, i ) {
+    if( !tree ) {
       return [];
     }
-    var listeners=[], leaf, len, branch, xTree, xxTree, isolatedBranch, endReached,
-        typeLength = type.length, currentType = type[i], nextType = type[i+1];
-    if (i === typeLength && tree._listeners) {
+    var listeners = [], leaf, len, branch, xTree, xxTree, isolatedBranch, endReached, typeLength = type.length, currentType = type[i], nextType = type[i + 1];
+    if( i === typeLength && tree._listeners ) {
       //
       // If at the end of the event(s) list and the tree has listeners
       // invoke those listeners.
       //
-      if (typeof tree._listeners === 'function') {
-        handlers && handlers.push(tree._listeners);
+      if( typeof tree._listeners === 'function' ) {
+        handlers && handlers.push( tree._listeners );
         return [tree];
       } else {
-        for (leaf = 0, len = tree._listeners.length; leaf < len; leaf++) {
-          handlers && handlers.push(tree._listeners[leaf]);
+        for( leaf = 0, len = tree._listeners.length; leaf < len; leaf++ ) {
+          handlers && handlers.push( tree._listeners[leaf] );
         }
         return [tree];
       }
     }
 
-    if ((currentType === '*' || currentType === '**') || tree[currentType]) {
+    if( (currentType === '*' || currentType === '**') || tree[currentType] ) {
       //
       // If the event emitted is '*' at this part
       // or there is a concrete match at this patch
       //
-      if (currentType === '*') {
-        for (branch in tree) {
-          if (branch !== '_listeners' && tree.hasOwnProperty(branch)) {
-            listeners = listeners.concat(searchListenerTree(handlers, type, tree[branch], i+1));
+      if( currentType === '*' ) {
+        for( branch in tree ) {
+          if( branch !== '_listeners' && tree.hasOwnProperty( branch ) ) {
+            listeners = listeners.concat( searchListenerTree( handlers, type, tree[branch], i + 1 ) );
           }
         }
         return listeners;
-      } else if(currentType === '**') {
-        endReached = (i+1 === typeLength || (i+2 === typeLength && nextType === '*'));
-        if(endReached && tree._listeners) {
+      } else if( currentType === '**' ) {
+        endReached = (i + 1 === typeLength || (i + 2 === typeLength && nextType === '*'));
+        if( endReached && tree._listeners ) {
           // The next element has a _listeners, add it to the handlers.
-          listeners = listeners.concat(searchListenerTree(handlers, type, tree, typeLength));
+          listeners = listeners.concat( searchListenerTree( handlers, type, tree, typeLength ) );
         }
 
-        for (branch in tree) {
-          if (branch !== '_listeners' && tree.hasOwnProperty(branch)) {
-            if(branch === '*' || branch === '**') {
-              if(tree[branch]._listeners && !endReached) {
-                listeners = listeners.concat(searchListenerTree(handlers, type, tree[branch], typeLength));
+        for( branch in tree ) {
+          if( branch !== '_listeners' && tree.hasOwnProperty( branch ) ) {
+            if( branch === '*' || branch === '**' ) {
+              if( tree[branch]._listeners && !endReached ) {
+                listeners = listeners.concat( searchListenerTree( handlers, type, tree[branch], typeLength ) );
               }
-              listeners = listeners.concat(searchListenerTree(handlers, type, tree[branch], i));
-            } else if(branch === nextType) {
-              listeners = listeners.concat(searchListenerTree(handlers, type, tree[branch], i+2));
+              listeners = listeners.concat( searchListenerTree( handlers, type, tree[branch], i ) );
+            } else if( branch === nextType ) {
+              listeners = listeners.concat( searchListenerTree( handlers, type, tree[branch], i + 2 ) );
             } else {
               // No match on this one, shift into the tree but not in the type array.
-              listeners = listeners.concat(searchListenerTree(handlers, type, tree[branch], i));
+              listeners = listeners.concat( searchListenerTree( handlers, type, tree[branch], i ) );
             }
           }
         }
         return listeners;
       }
 
-      listeners = listeners.concat(searchListenerTree(handlers, type, tree[currentType], i+1));
+      listeners = listeners.concat( searchListenerTree( handlers, type, tree[currentType], i + 1 ) );
     }
 
     xTree = tree['*'];
-    if (xTree) {
+    if( xTree ) {
       //
       // If the listener tree will allow any match for this part,
       // then recursively explore all branches of the tree
       //
-      searchListenerTree(handlers, type, xTree, i+1);
+      searchListenerTree( handlers, type, xTree, i + 1 );
     }
 
     xxTree = tree['**'];
-    if(xxTree) {
-      if(i < typeLength) {
-        if(xxTree._listeners) {
+    if( xxTree ) {
+      if( i < typeLength ) {
+        if( xxTree._listeners ) {
           // If we have a listener on a '**', it will catch all, so add its handler.
-          searchListenerTree(handlers, type, xxTree, typeLength);
+          searchListenerTree( handlers, type, xxTree, typeLength );
         }
 
         // Build arrays of matching next branches and others.
-        for(branch in xxTree) {
-          if(branch !== '_listeners' && xxTree.hasOwnProperty(branch)) {
-            if(branch === nextType) {
+        for( branch in xxTree ) {
+          if( branch !== '_listeners' && xxTree.hasOwnProperty( branch ) ) {
+            if( branch === nextType ) {
               // We know the next element will match, so jump twice.
-              searchListenerTree(handlers, type, xxTree[branch], i+2);
-            } else if(branch === currentType) {
+              searchListenerTree( handlers, type, xxTree[branch], i + 2 );
+            } else if( branch === currentType ) {
               // Current node matches, move into the tree.
-              searchListenerTree(handlers, type, xxTree[branch], i+1);
+              searchListenerTree( handlers, type, xxTree[branch], i + 1 );
             } else {
               isolatedBranch = {};
               isolatedBranch[branch] = xxTree[branch];
-              searchListenerTree(handlers, type, { '**': isolatedBranch }, i+1);
+              searchListenerTree( handlers, type, { '**': isolatedBranch }, i + 1 );
             }
           }
         }
-      } else if(xxTree._listeners) {
+      } else if( xxTree._listeners ) {
         // We have reached the end and still on a '**'
-        searchListenerTree(handlers, type, xxTree, typeLength);
-      } else if(xxTree['*'] && xxTree['*']._listeners) {
-        searchListenerTree(handlers, type, xxTree['*'], typeLength);
+        searchListenerTree( handlers, type, xxTree, typeLength );
+      } else if( xxTree['*'] && xxTree['*']._listeners ) {
+        searchListenerTree( handlers, type, xxTree['*'], typeLength );
       }
     }
 
     return listeners;
   }
 
-  function growListenerTree(type, listener) {
+  function growListenerTree( type, listener ) {
 
-    type = typeof type === 'string' ? type.split(this._conf.delimiter) : type.slice();
+    type = typeof type === 'string' ? type.split( this._conf.delimiter ) : type.slice();
 
     //
     // Looks for two consecutive '**', if so, don't add the event at all.
     //
-    for(var i = 0, len = type.length; i+1 < len; i++) {
-      if(type[i] === '**' && type[i+1] === '**') {
+    for( var i = 0, len = type.length; i + 1 < len; i++ ) {
+      if( type[i] === '**' && type[i + 1] === '**' ) {
         return;
       }
     }
@@ -163,43 +162,40 @@
     var tree = this.listenerTree;
     var name = type.shift();
 
-    while (name) {
+    while( name ) {
 
-      if (!tree[name]) {
+      if( !tree[name] ) {
         tree[name] = {};
       }
 
       tree = tree[name];
 
-      if (type.length === 0) {
+      if( type.length === 0 ) {
 
-        if (!tree._listeners) {
+        if( !tree._listeners ) {
           tree._listeners = listener;
         }
 
-        else if(typeof tree._listeners === 'function') {
+        else if( typeof tree._listeners === 'function' ) {
           tree._listeners = [tree._listeners, listener];
         }
 
-        else if (isArray(tree._listeners)) {
+        else if( isArray( tree._listeners ) ) {
 
-          tree._listeners.push(listener);
+          tree._listeners.push( listener );
 
-          if (!tree._listeners.warned) {
+          if( !tree._listeners.warned ) {
 
             var m = this.defaultMaxListeners;
 
-            if (typeof this._events.maxListeners !== 'undefined') {
+            if( typeof this._events.maxListeners !== 'undefined' ) {
               m = this._events.maxListeners;
             }
 
-            if (m > 0 && tree._listeners.length > m) {
+            if( m > 0 && tree._listeners.length > m ) {
 
               tree._listeners.warned = true;
-              console.error('(node) warning: possible ud.event memory ' +
-                            'leak detected. %d listeners added. ' +
-                            'Use emitter.setMaxListeners() to increase limit.',
-                            tree._listeners.length);
+              console.error( '(node) warning: possible ud.event memory ' + 'leak detected. %d listeners added. ' + 'Use emitter.setMaxListeners() to increase limit.', tree._listeners.length );
               console.trace();
             }
           }
@@ -211,14 +207,13 @@
     return true;
   };
 
-  
   /**
    * Constructor
    *
    */
   ud.event = function( conf ) {
     this._events = {};
-    configure.call(this, conf);
+    configure.call( this, conf );
   }
 
   /**
@@ -227,7 +222,7 @@
    * @method bestow
    */
   ud.event.bestow = function bestow( target, config ) {
-    
+
     // Create new instance
     var _event = new ud.event( config );
 
@@ -242,11 +237,11 @@
           'value': _event[ key ],
           'enumerable': 'function' === typeof _event[ key ] ? false : true,
           'writable': 'function' === typeof _event[ key ] ? false : true
-        });
+        } );
 
       } else {
         target[ key ] = _event[ key ];
-      }      
+      }
 
     }
 
@@ -260,69 +255,67 @@
     delimiter: '.'
   }
 
-  ud.event.prototype.setMaxListeners = function(n) {
-    this._events || init.call(this);
+  ud.event.prototype.setMaxListeners = function( n ) {
+    this._events || init.call( this );
     this._events.maxListeners = n;
-    if (!this._conf) this._conf = {};
+    if( !this._conf ) this._conf = {};
     this._conf.maxListeners = n;
   };
 
   ud.event.prototype.event = '';
 
-  ud.event.prototype.once = function once(event, fn) {
-    this.many(event, 1, fn);
+  ud.event.prototype.once = function once( event, fn ) {
+    this.many( event, 1, fn );
     return this;
   };
 
-  ud.event.prototype.many = function many(event, ttl, fn) {
+  ud.event.prototype.many = function many( event, ttl, fn ) {
     var self = this;
 
-    if (typeof fn !== 'function') {
-      throw new Error('many only accepts instances of Function');
+    if( typeof fn !== 'function' ) {
+      throw new Error( 'many only accepts instances of Function' );
     }
 
     function listener() {
-      if (--ttl === 0) {
-        self.off(event, listener);
+      if( --ttl === 0 ) {
+        self.off( event, listener );
       }
-      fn.apply(this, arguments);
+      fn.apply( this, arguments );
     };
 
     listener._origin = fn;
 
-    this.on(event, listener);
+    this.on( event, listener );
 
     return self;
   };
 
   ud.event.prototype.emit = function() {
 
-    this._events || init.call(this);
+    this._events || init.call( this );
 
     var type = arguments[0];
 
     // Loop through the *_all* functions and invoke them.
-    if (this._all) {
+    if( this._all ) {
       var l = arguments.length;
-      var args = new Array(l - 1);
-      for (var i = 1; i < l; i++) args[i - 1] = arguments[i];
-      for (i = 0, l = this._all.length; i < l; i++) {
+      var args = new Array( l - 1 );
+      for( var i = 1; i < l; i++ ) args[i - 1] = arguments[i];
+      for( i = 0, l = this._all.length; i < l; i++ ) {
         this.event = type;
-        this._all[i].apply(this, args);
+        this._all[i].apply( this, args );
       }
     }
 
     // If there is no 'error' event listener then throw.
-    if (type === 'error') {
+    if( type === 'error' ) {
 
-      if (!this._all && 
-        !this._events.error && 
-        !(this._conf.wildcard && this.listenerTree.error)) {
+      if( !this._all && !this._events.error && !(this._conf.wildcard && this.listenerTree.error) ) {
 
-        if (arguments[1] instanceof Error) {
+        if( arguments[1] instanceof Error ) {
           throw arguments[1]; // Unhandled 'error' event
         } else {
-          throw new Error("Uncaught, unspecified 'error' event.");
+          throw new Error( "Uncaught, unspecified 'error' event." );
         }
         return false;
       }
@@ -330,99 +323,91 @@
 
     var handler;
 
-    if(this._conf.wildcard) {
+    if( this._conf.wildcard ) {
       handler = [];
-      var ns = typeof type === 'string' ? type.split(this._conf.delimiter) : type.slice();
-      searchListenerTree.call(this, handler, ns, this.listenerTree, 0);
-    }
-    else {
+      var ns = typeof type === 'string' ? type.split( this._conf.delimiter ) : type.slice();
+      searchListenerTree.call( this, handler, ns, this.listenerTree, 0 );
+    } else {
       handler = this._events[type];
     }
 
-    if (typeof handler === 'function') {
+    if( typeof handler === 'function' ) {
       this.event = type;
-      if (arguments.length === 1) {
-        handler.call(this);
-      }
-      else if (arguments.length > 1)
-        switch (arguments.length) {
+      if( arguments.length === 1 ) {
+        handler.call( this );
+      } else if( arguments.length > 1 )
+        switch( arguments.length ) {
           case 2:
-            handler.call(this, arguments[1]);
+            handler.call( this, arguments[1] );
             break;
           case 3:
-            handler.call(this, arguments[1], arguments[2]);
+            handler.call( this, arguments[1], arguments[2] );
             break;
           // slower
           default:
             var l = arguments.length;
-            var args = new Array(l - 1);
-            for (var i = 1; i < l; i++) args[i - 1] = arguments[i];
-            handler.apply(this, args);
+            var args = new Array( l - 1 );
+            for( var i = 1; i < l; i++ ) args[i - 1] = arguments[i];
+            handler.apply( this, args );
         }
       return true;
-    }
-    else if (handler) {
+    } else if( handler ) {
       var l = arguments.length;
-      var args = new Array(l - 1);
-      for (var i = 1; i < l; i++) args[i - 1] = arguments[i];
+      var args = new Array( l - 1 );
+      for( var i = 1; i < l; i++ ) args[i - 1] = arguments[i];
 
       var listeners = handler.slice();
-      for (var i = 0, l = listeners.length; i < l; i++) {
+      for( var i = 0, l = listeners.length; i < l; i++ ) {
         this.event = type;
-        listeners[i].apply(this, args);
+        listeners[i].apply( this, args );
       }
       return (listeners.length > 0) || this._all;
-    }
-    else {
+    } else {
       return this._all;
     }
 
   };
 
-  ud.event.prototype.on = function(type, listener) {
+  ud.event.prototype.on = function( type, listener ) {
 
-    if (typeof type === 'function') {
-      this.onAny(type);
+    if( typeof type === 'function' ) {
+      this.onAny( type );
       return this;
     }
 
-    if (typeof listener !== 'function') {
-      throw new Error('on only accepts instances of Function');
+    if( typeof listener !== 'function' ) {
+      throw new Error( 'on only accepts instances of Function' );
     }
-    this._events || init.call(this);
+    this._events || init.call( this );
 
-    if(this._conf.wildcard) {
-      growListenerTree.call(this, type, listener);
+    if( this._conf.wildcard ) {
+      growListenerTree.call( this, type, listener );
       return this;
     }
 
-    if (!this._events[type]) {
+    if( !this._events[type] ) {
       // Optimize the case of one listener. Don't need the extra array object.
       this._events[type] = listener;
-    } else if(typeof this._events[type] === 'function') {
+    } else if( typeof this._events[type] === 'function' ) {
       // Adding the second element, need to change to array.
       this._events[type] = [this._events[type], listener];
-    }
-    else if (isArray(this._events[type])) {
+    } else if( isArray( this._events[type] ) ) {
       // If we've already got an array, just append.
-      this._events[type].push(listener);
+      this._events[type].push( listener );
 
       // Check for listener leak
-      if (!this._events[type].warned) {
+      if( !this._events[type].warned ) {
 
         var m = this.defaultMaxListeners;
 
-        if (typeof this._events.maxListeners !== 'undefined') {
+        if( typeof this._events.maxListeners !== 'undefined' ) {
           m = this._events.maxListeners;
         }
 
-        if (m > 0 && this._events[type].length > m) {
+        if( m > 0 && this._events[type].length > m ) {
 
           this._events[type].warned = true;
-          console.error('(node) warning: possible ud.event memory ' +
-                        'leak detected. %d listeners added. ' +
-                        'Use emitter.setMaxListeners() to increase limit.',
-                        this._events[type].length);
+          console.error( '(node) warning: possible ud.event memory ' + 'leak detected. %d listeners added. ' + 'Use emitter.setMaxListeners() to increase limit.', this._events[type].length );
           console.trace();
         }
       }
@@ -430,84 +415,75 @@
     return this;
   };
 
-  ud.event.prototype.onAny = function(fn) {
+  ud.event.prototype.onAny = function( fn ) {
 
-    if(!this._all) {
+    if( !this._all ) {
       this._all = [];
     }
 
-    if (typeof fn !== 'function') {
-      throw new Error('onAny only accepts instances of Function');
+    if( typeof fn !== 'function' ) {
+      throw new Error( 'onAny only accepts instances of Function' );
     }
 
     // Add the function to the event listener collection.
-    this._all.push(fn);
+    this._all.push( fn );
     return this;
   };
 
   ud.event.prototype.addListener = ud.event.prototype.on;
 
-  ud.event.prototype.off = function(type, listener) {
-    if (typeof listener !== 'function') {
-      throw new Error('removeListener only takes instances of Function');
+  ud.event.prototype.off = function( type, listener ) {
+    if( typeof listener !== 'function' ) {
+      throw new Error( 'removeListener only takes instances of Function' );
     }
 
-    var handlers,leafs=[];
+    var handlers, leafs = [];
 
-    if(this._conf.wildcard) {
-      var ns = typeof type === 'string' ? type.split(this._conf.delimiter) : type.slice();
-      leafs = searchListenerTree.call(this, null, ns, this.listenerTree, 0);
-    }
-    else {
+    if( this._conf.wildcard ) {
+      var ns = typeof type === 'string' ? type.split( this._conf.delimiter ) : type.slice();
+      leafs = searchListenerTree.call( this, null, ns, this.listenerTree, 0 );
+    } else {
       // does not use listeners(), so no side effect of creating _events[type]
-      if (!this._events[type]) return this;
+      if( !this._events[type] ) return this;
       handlers = this._events[type];
-      leafs.push({_listeners:handlers});
+      leafs.push( {_listeners: handlers} );
     }
 
-    for (var iLeaf=0; iLeaf<leafs.length; iLeaf++) {
+    for( var iLeaf = 0; iLeaf < leafs.length; iLeaf++ ) {
       var leaf = leafs[iLeaf];
       handlers = leaf._listeners;
-      if (isArray(handlers)) {
+      if( isArray( handlers ) ) {
 
         var position = -1;
 
-        for (var i = 0, length = handlers.length; i < length; i++) {
-          if (handlers[i] === listener ||
-            (handlers[i].listener && handlers[i].listener === listener) ||
-            (handlers[i]._origin && handlers[i]._origin === listener)) {
+        for( var i = 0, length = handlers.length; i < length; i++ ) {
+          if( handlers[i] === listener || (handlers[i].listener && handlers[i].listener === listener) || (handlers[i]._origin && handlers[i]._origin === listener) ) {
             position = i;
             break;
           }
         }
 
-        if (position < 0) {
+        if( position < 0 ) {
           return this;
         }
 
-        if(this._conf.wildcard) {
-          leaf._listeners.splice(position, 1)
-        }
-        else {
-          this._events[type].splice(position, 1);
+        if( this._conf.wildcard ) {
+          leaf._listeners.splice( position, 1 )
+        } else {
+          this._events[type].splice( position, 1 );
         }
 
-        if (handlers.length === 0) {
-          if(this._conf.wildcard) {
+        if( handlers.length === 0 ) {
+          if( this._conf.wildcard ) {
             delete leaf._listeners;
-          }
-          else {
+          } else {
             delete this._events[type];
           }
         }
-      }
-      else if (handlers === listener ||
-        (handlers.listener && handlers.listener === listener) ||
-        (handlers._origin && handlers._origin === listener)) {
-        if(this._conf.wildcard) {
+      } else if( handlers === listener || (handlers.listener && handlers.listener === listener) || (handlers._origin && handlers._origin === listener) ) {
+        if( this._conf.wildcard ) {
           delete leaf._listeners;
-        }
-        else {
+        } else {
           delete this._events[type];
         }
       }
@@ -516,13 +492,13 @@
     return this;
   };
 
-  ud.event.prototype.offAny = function(fn) {
+  ud.event.prototype.offAny = function( fn ) {
     var i = 0, l = 0, fns;
-    if (fn && this._all && this._all.length > 0) {
+    if( fn && this._all && this._all.length > 0 ) {
       fns = this._all;
-      for(i = 0, l = fns.length; i < l; i++) {
-        if(fn === fns[i]) {
-          fns.splice(i, 1);
+      for( i = 0, l = fns.length; i < l; i++ ) {
+        if( fn === fns[i] ) {
+          fns.splice( i, 1 );
           return this;
         }
       }
@@ -534,40 +510,39 @@
 
   ud.event.prototype.removeListener = ud.event.prototype.off;
 
-  ud.event.prototype.removeAllListeners = function(type) {
-    if (arguments.length === 0) {
-      !this._events || init.call(this);
+  ud.event.prototype.removeAllListeners = function( type ) {
+    if( arguments.length === 0 ) {
+      !this._events || init.call( this );
       return this;
     }
 
-    if(this._conf.wildcard) {
-      var ns = typeof type === 'string' ? type.split(this._conf.delimiter) : type.slice();
-      var leafs = searchListenerTree.call(this, null, ns, this.listenerTree, 0);
+    if( this._conf.wildcard ) {
+      var ns = typeof type === 'string' ? type.split( this._conf.delimiter ) : type.slice();
+      var leafs = searchListenerTree.call( this, null, ns, this.listenerTree, 0 );
 
-      for (var iLeaf=0; iLeaf<leafs.length; iLeaf++) {
+      for( var iLeaf = 0; iLeaf < leafs.length; iLeaf++ ) {
         var leaf = leafs[iLeaf];
         leaf._listeners = null;
       }
-    }
-    else {
-      if (!this._events[type]) return this;
+    } else {
+      if( !this._events[type] ) return this;
       this._events[type] = null;
     }
     return this;
   };
 
-  ud.event.prototype.listeners = function(type) {
-    if(this._conf.wildcard) {
+  ud.event.prototype.listeners = function( type ) {
+    if( this._conf.wildcard ) {
       var handlers = [];
-      var ns = typeof type === 'string' ? type.split(this._conf.delimiter) : type.slice();
-      searchListenerTree.call(this, handlers, ns, this.listenerTree, 0);
+      var ns = typeof type === 'string' ? type.split( this._conf.delimiter ) : type.slice();
+      searchListenerTree.call( this, handlers, ns, this.listenerTree, 0 );
       return handlers;
     }
 
-    this._events || init.call(this);
+    this._events || init.call( this );
 
-    if (!this._events[type]) this._events[type] = [];
-    if (!isArray(this._events[type])) {
+    if( !this._events[type] ) this._events[type] = [];
+    if( !isArray( this._events[type] ) ) {
       this._events[type] = [this._events[type]];
     }
     return this._events[type];
@@ -575,11 +550,12 @@
 
   ud.event.prototype.listenersAny = function() {
 
-    if(this._all) {
+    if( this._all ) {
       return this._all;
-    }
-    else {
+    } else {
       return [];
     }
 
   };
+
+});

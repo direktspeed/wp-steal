@@ -120,6 +120,7 @@
 </ul>
 <h2 id="utility-methods">Utility Methods</h2>
 <ul>
+<li>extend()</li>
 <li>defaults()</li>
 <li>pluralize()</li>
 <li>singularize()</li>
@@ -134,6 +135,13 @@
 <li>Added Utility::hashify_file_name() method;</li>
 <li>Added seperator options to Utility:;create_slug() to support things such as &quot;::&quot;</li>
 </ul>
+<h2 id="usage">Usage</h2>
+<pre><code class="lang-PHP">// Extend an Array or Object with another for easily setting of defaults. This is similar to extend() but in reverse.
+$settings = UsabilityDynamics\Utility::defaults( $configurationObject, $defaultsObject );
+
+// Find composer.json file and return as Object.
+$composer = UsabilityDynamics\Utility::findUp( &#39;composer.json&#39;, __DIR__ );
+echo &quot;Versio is {$composer-&gt;version}.&quot;</code></pre>
 <h2 id="license">License</h2>
 <p>(The MIT License)</p>
 <p>Copyright (c) 2013 Usability Dynamics, Inc. &lt;info@usabilitydynamics.com&gt;</p>

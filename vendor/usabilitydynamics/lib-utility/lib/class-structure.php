@@ -25,8 +25,14 @@ namespace UsabilityDynamics {
       static private $structure = array();
       
       /**
+       * Define Data Structure
        *
+       * @param $args
+       * @param $args.types       (array) Post type definitions
+       * @param $args.meta        (array) Meta definitions.
+       * @param $args.taxonomies  (array) Taxonomy fields.
        *
+       * @return array|bool
        */
       static public function define( $args = array() ) {
       
@@ -52,18 +58,20 @@ namespace UsabilityDynamics {
           // Register Post Type
           $data = ( isset( $type[ 'data' ] ) && is_array( $type[ 'data' ] ) ) ? $type[ 'data' ] : array();
 
-          register_post_type( $object_type, self::_prepare_post_type( $object_type, $data ) );
+          if( !post_type_exists( $object_type ) ) {
+            register_post_type( $object_type, self::_prepare_post_type( $object_type, $data ));
+          }
+          
+          // STEP 2. Register taxonomy ( and Taxonomy's Post Type if theme supports 'extended-taxonomies' feature )
           
           // Define post type's taxonomies
           $taxonomies = ( isset( $type[ 'taxonomies' ] ) && is_array( $type[ 'taxonomies' ] ) ) ? $type[ 'taxonomies' ] : array(
             'post_tag',
             'category',
           );
-          
-          // STEP 2. Register taxonomy
-          
+
           // Initialize taxonomies if they don't exist and assign them to the current post type
-          foreach( $taxonomies as $taxonomy ) {
+          foreach( (array) $taxonomies as $taxonomy ) {
             
             if( empty( $taxonomy ) || !is_string( $taxonomy ) ) {
               continue;
@@ -75,6 +83,21 @@ namespace UsabilityDynamics {
             }
             
             register_taxonomy_for_object_type( $taxonomy, $object_type );
+            
+            //** Add custom post type for our taxonomy if theme supports extended-taxonomies */
+            $taxonomy_post_type = '_tp_' . $taxonomy;
+            if( current_theme_supports( 'extended-taxonomies' ) && !post_type_exists( $taxonomy_post_type ) ) {
+              register_post_type( $taxonomy_post_type, array(
+                'label' => $data[ 'label' ],
+                'public' => false,
+                'rewrite' => false,
+                'labels' => array(
+                  'name' => $data[ 'label' ],
+                  'edit_item' => 'Edit Term: ' . $data[ 'label' ]
+                ),
+                'supports' => array( 'title', 'editor' ),
+              ));
+            }
 
             if( isset( $structure[ $object_type ] ) && isset( $structure[ $object_type ]['terms' ] ) && is_array( $structure[ $object_type ]['terms' ] ) ) {
               array_push( $structure[ $object_type ][ 'terms' ], $taxonomy );
@@ -84,17 +107,19 @@ namespace UsabilityDynamics {
           
           // STEP 3. Set meta fields and meta boxes
           
-          // Break if Meta Box class doesn't exist
+          // Stop here if Meta Box class doesn't exist
           if( !class_exists( '\RW_Meta_Box' ) ) {
-            return false;
+            continue;
           }
           
           // Init \RW_Meta_Box defines if needed
           if ( !defined( 'RWMB_VER' ) ) {
+
             $reflector = new \ReflectionClass( '\RW_Meta_Box' );
+
             $file = dirname( dirname( $reflector->getFileName() ) ) . '/meta-box.php';
             if( !file_exists( $file ) ) {
-              return false;
+              continue;
             }
             include_once( $file );
           }
@@ -112,8 +137,10 @@ namespace UsabilityDynamics {
         }
         
         // STEP 4. reset static vars and return structure data.
-        
-        $structure = self::$structure;
+        $structure = array(
+          'post_types' => self::$structure,
+          'schema' => self::$args,
+        );
         
         self::$args = array();
         self::$structure = array();

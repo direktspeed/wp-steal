@@ -5,7 +5,6 @@
  * @copyright Copyright (c) 2010 - 2013, Usability Dynamics, Inc.
  *
  * @author team@UD
- * @version 0.2.5
  * @namespace UsabilityDynamics
  * @module Utility
  */
@@ -23,13 +22,13 @@ namespace UsabilityDynamics {
     class Utility {
 
       /**
-       * Veneer core version.
+       * Class version.
        *
        * @static
        * @property $version
-       * @type {Object}
+       * @type string
        */
-      public static $version = '0.3.1';
+      public static $version = '0.3.6';
 
       /**
        * Textdomain String
@@ -41,13 +40,6 @@ namespace UsabilityDynamics {
       public static $text_domain = 'lib-utility';
 
       /**
-       * Default salt for encryption
-       *
-       * @property default_salt
-       */
-      const default_salt = AUTH_SALT;
-
-      /**
        * Constructor for initializing class, in static mode as well as dynamic.
        *
        * @todo Should make the transdomain configuraiton.
@@ -56,6 +48,193 @@ namespace UsabilityDynamics {
        * @author potanin@UD
        */
       public function __construct() {}
+
+      /**
+       *
+       * call_user_func( 'UsabilityDynamics\Utility::optimizeDatabase', 'flush-duplicate-meta' );
+       *
+       * UsabilityDynamics\Utility::optimizeDatabase( 'flush-duplicate-meta' );
+       *
+       * @param $action
+       */
+      static public function optimizeDatabase( $action ) {
+        global $wpdb;
+        //die('optimizeDatabase');
+
+        switch( $action ) {
+
+          case 'flush-duplicate-meta':
+
+            $allposts = get_posts(array(
+              "numberposts" => 10,
+              "offset" => 10,
+              "post_type" => 'any',
+              "post_status" => 'any'
+            ));
+
+            foreach ( $allposts as $_post ) {
+
+              $postmeta = get_post_meta($postinfo->ID, $key);
+
+              die( '<pre>' . print_r( $postmeta, true ) . '</pre>');
+
+            }
+
+            $keys = array('address', 'address2', 'city', 'state', 'zip'); //Add post meta keys here
+
+            foreach ( $keys as $key ) {
+
+              foreach( $allposts as $postinfo) {
+
+                // Fetch array of custom field values
+
+
+                //print_r($postinfo);
+
+                if (!empty($postmeta) ) {
+
+                  // Delete the custom field for this post (all occurrences)
+                  delete_post_meta($postinfo->ID, $key);
+
+                  // Insert one and only one custom field
+                  update_post_meta($postinfo->ID, $key, $postmeta[0]);
+
+                }
+              }
+
+            }
+
+
+            break;
+
+          default:
+
+          break;
+
+        }
+
+        //$wpdb->query( "DELETE a,b,c FROM {$wpdb->posts} a LEFT JOIN wp_term_relationships b ON (a.ID = b.object_id) LEFT JOIN {$wpdb->postmeta} c ON (a.ID = c.post_id) WHERE a.post_type = 'revision'" );
+        //$wpdb->query( "DELETE pm FROM wp_postmeta pm LEFT JOIN wp_posts wp ON wp.ID = pm.post_id WHERE wp.ID IS NULL;" );
+        //$wpdb->query( "DELETE FROM {$wpdb->options} WHERE option_name LIKE ('_site_transient_%');" );
+        //$wpdb->query( "DELETE FROM {$wpdb->options} WHERE option_name LIKE ('_transient_%');" );
+
+
+      }
+
+      /**
+       * Looks for a json or a php file in specified directory, if the file is not found traverse up and look for it again until its found or until a document root is reached
+       *
+       *
+       * @todo Honor the "nocase" option setting.
+       * @todo Perhaps wrap simplexml_load_file into  - potanin@UD
+       *
+       * @since 0.3.2
+       * @method findUp
+       * @param string $name      - Name of file to find.
+       * @param string $cwd       - Directory to start seeking from. Defaults to __DIR__
+       * @param string $required  - If the file is required - if not found, will trigger an error.
+       * @author tosheen@UD
+       * @return array|bool|mixed|\SimpleXMLElement
+       */
+      static public function findUp( $name = false, $cwd = false, $required = false ) {
+
+        // No name provided, bail.
+        if( !$name ) {
+          return false;
+        }
+
+        // If first argument appears to be an object/array, treat it as a configuration object.
+        if( is_array( $name ) || is_object( $name ) ) {
+
+          // Apply default settings to passed argument.
+          $_settings = self::defaults( $name, array(
+            "cwd" => $cwd ? $cwd : null,
+            "required" => $required ? $required : false,
+            "nocase" => true
+          ));
+
+          $name     = $_settings->name;
+          $cwd      = $_settings->cwd;
+          $required = $_settings->required;
+          $nocase   = $_settings->nocase;
+
+        }
+
+        // No CWD set, backtrace to determine caller.
+        $cwd = $cwd ? $cwd : dirname( self::backtrace_caller()->file );
+
+        // Determine if file is JSON
+        $fileData      = explode( '.', $name );
+        $fileExtension = $fileData[ count( $fileData ) - 1 ];
+
+        // Determine traverse path
+        $_path = ( !empty( $cwd ) ? $cwd : $_SERVER[ 'DOCUMENT_ROOT' ] );
+
+        $file = $_path . DIRECTORY_SEPARATOR . $name;
+
+        // Trigger Error and bail on failures.
+        if( !is_dir( $_path ) ) {
+
+          // Trigger error if required, otherwise fail silently.
+          if( $required ) {
+            trigger_error( __( 'Required file not found.', self::$text_domain ), E_USER_ERROR );
+          }
+
+          return false;
+
+        }
+
+        if( file_exists( $file ) ) {
+
+          // Fetch and parse JSON.
+          if( $fileExtension === 'json' ) {
+            return json_decode( file_get_contents( $file ) );
+          }
+
+          // Fetch and parse XML.
+          if( $fileExtension === 'xml' ) {
+            return simplexml_load_file( $file );
+          }
+
+          // Include all others.
+          return include_once( $file );
+
+        }
+
+        if( $_path != $_SERVER[ 'DOCUMENT_ROOT' ] ) {
+          $lastDirSeparator   = strrpos( $_path, DIRECTORY_SEPARATOR, -1 );
+          $_path              = substr( $_path, 0, $lastDirSeparator );
+          return self::findUp( $name, $_path );
+        }
+
+        // Trigger error if file was required.
+        if( $required ) {
+          trigger_error( __( 'Required file not found.', self::$text_domain ), E_USER_ERROR );
+        }
+
+        // Couldn't find anything
+        return false;
+
+      }
+
+      /**
+       * Get Caller Object
+       *
+       * @method backtrace_caller
+       * @since 0.3.2
+       * @author potanin@UD
+       * @param int $depth
+       * @return object
+       */
+      static public function backtrace_caller( $depth = 1 ) {
+
+        // Always add one level to backtrace.
+        $_backtrace = debug_backtrace( DEBUG_BACKTRACE_IGNORE_ARGS, ( $depth ? $depth : 1 ) + 1 );
+
+        // Return first hit as object, or a scaffolded object.
+        return $_backtrace[1] ? (object) $_backtrace[1] : (object) array( 'file' => null );
+
+      }
 
       /**
        * Set Dot-Notated Array Value
@@ -114,21 +293,20 @@ namespace UsabilityDynamics {
       /**
        * Parses Query.
        * HACK. The current logic solves the issue of max_input_vars in the case if query is huge.
-       * For example, user can set more than 150 property attributes (WP-Property) where every attribute has own set of params.
-       *
+       * 
        * @see parse_str() Default PHP function
-       * @version 1.0
+       * @param mixed $request
+       * @version 1.1
        * @author peshkov@UD
        */
-      static public function parse_str( $request, $data = array() ) {
-        $hash = md5( '%2B' );
-        $request = str_replace( '%2B', $hash, $request );
-        $request = urldecode( $request );
-        $request = str_replace( $hash, '%2B', $request );
+      static public function parse_str( $request ) {
+        $data = array();
         $tokens = explode( "&", $request );
         foreach ( $tokens as $token ) {
+          $token = str_replace( '%2B', md5( '%2B' ), $token );
           $arr = array();
           parse_str( $token, $arr );
+          array_walk_recursive( $arr, create_function( '&$value,$key', '$value = str_replace( md5( "%2B" ), "+", $value );' ) );
           $data = self::extend( $data, $arr );
         }
         return $data;
@@ -1012,7 +1190,7 @@ namespace UsabilityDynamics {
        * @author peshkov@UD
        * @since 0.2.5
        */
-      static function get_image_link_with_custom_size( $attachment_id, $width, $height ) {
+      static function get_image_link_with_custom_size( $attachment_id, $width, $height, $crop = false ) {
         global $wpdb;
 
         // Sanitize
@@ -1038,7 +1216,7 @@ namespace UsabilityDynamics {
         // If an image of such size was not found, we can create one.
         if( $needs_resize ) {
           $attached_file = get_attached_file( $attachment_id );
-          $resized       = image_make_intermediate_size( $attached_file, $width, $height );
+          $resized       = image_make_intermediate_size( $attached_file, $width, $height, $crop );
           if( is_wp_error( $resized ) ) {
             return $resized;
           }
@@ -1618,59 +1796,6 @@ namespace UsabilityDynamics {
       }
 
       /**
-       * Determine if any requested template exists and return path to it.
-       *
-       * Migrated from ud_api.php.. - potanin@UD
-       *
-       * @todo Merge with x_get_template_part() to support $slug and $name, as well as $path.
-       *
-       * @param array $name
-       * @param array $path
-       * @param array $opts
-       *
-       * @internal param array $name List of requested templates. Will be return the first found
-       * @return bool|mixed|void
-       * @path array $path [optional]. Method tries to find template in theme, but also it can be found in given list of pathes.
-       * @author peshkov@UD
-       * @version 1.0
-       */
-      static public function _get_template_part( $name, $path = array(), $opts = array() ) {
-
-        $name     = (array) $name;
-        $template = "";
-
-        /**
-         * Set default instance.
-         * Template can depend on instance. For example: facebook, PDF, etc.
-         */
-        $instance = apply_filters( "ud::current_instance", "default" );
-
-        $opts = wp_parse_args( $opts, array(
-          'instance' => $instance,
-        ) );
-
-        foreach( $name as $n ) {
-          $n        = "{$n}.php";
-          $template = locate_template( $n, false );
-          if( empty( $template ) && !empty( $path ) ) {
-            foreach( (array) $path as $p ) {
-              if( file_exists( $p . "/" . $n ) ) {
-                $template = $p . "/" . $n;
-                break( 2 );
-              }
-            }
-          }
-          if( !empty( $template ) ) break;
-        }
-
-        $template = apply_filters( "ud::template_part::{$opts['instance']}", $template, array( 'name' => $name, 'path' => $path, 'opts' => $opts ) );
-
-        WPP_F::console_log( $template, $instance );
-
-        return !empty( $template ) ? $template : false;
-      }
-
-      /**
        * The goal of function is going through specific filters and return (or print) classes.
        * This function should not be called directly.
        * Every ud plugin/theme should have own short function ( wrapper ) for calling it. E.g., see: wpp_css().
@@ -1879,15 +2004,12 @@ namespace UsabilityDynamics {
        * @uses add_action() Calls 'admin_menu' hook with an anonymous ( lambda-style ) function which uses add_menu_page to create a UI Log page
        */
       static public function add_log_page() {
-
         if( did_action( 'admin_menu' ) ) {
           _doing_it_wrong( __FUNCTION__, sprintf( __( 'You cannot call UD\Utility::add_log_page() after the %1$s hook.' ), 'init' ), '3.4' );
 
           return false;
         }
-
-        add_action( 'admin_menu', create_function( '', "add_menu_page( __( 'Log' ,self::$text_domain ), __( 'Log', self::$text_domain ), 10, 'ud_log', array( 'UD_Utility', 'show_log_page' ) );" ) );
-
+        add_action( 'admin_menu', create_function( '', "add_menu_page( __( 'Log' ,UD_API_Transdomain ), __( 'Log',UD_API_Transdomain ), current_user_can( 'manage_options' ), 'ud_log', array( 'UD_API', 'show_log_page' ) );" ) );
       }
 
       /**
@@ -2004,7 +2126,7 @@ namespace UsabilityDynamics {
           }
 
           if ( !empty( $args[ 'trigger_action' ] ) && is_callable( 'WP_CRM_N', 'get_trigger_action_notification' ) ) {
-            $notifications = WP_CRM_N::get_trigger_action_notification( $args[ 'trigger_action' ] );
+            $notifications = \WP_CRM_N::get_trigger_action_notification( $args[ 'trigger_action' ] );
             if ( !empty( $notifications ) ) {
               return wp_crm_send_notification( $args[ 'trigger_action' ], $args[ 'data' ] );
             }
@@ -2182,7 +2304,7 @@ namespace UsabilityDynamics {
        */
       static public function encrypt( $pt, $salt = false ) {
 
-        if( !$salt ) $salt = self::default_salt;
+        if( !$salt ) $salt = AUTH_SALT;
         $encrypted = base64_encode( mcrypt_encrypt( MCRYPT_RIJNDAEL_256, md5( $salt ), $pt, MCRYPT_MODE_CBC, md5( md5( $salt ) ) ) );
         $encrypted = str_replace( array( '+', '/', '=' ), array( '-', '_', '' ), $encrypted );
 
@@ -2204,7 +2326,7 @@ namespace UsabilityDynamics {
        */
       static public function decrypt( $ct, $salt = false ) {
 
-        if( !$salt ) $salt = self::default_salt;
+        if( !$salt ) $salt = AUTH_SALT;
         $data = str_replace( array( '-', '_' ), array( '+', '/' ), $ct );
         $mod4 = strlen( $data ) % 4;
         if( $mod4 ) {
@@ -2379,7 +2501,7 @@ namespace UsabilityDynamics {
         //** Replace l10n entries */
         foreach( $data as $k => $v ) {
           if ( is_array( $v ) ) {
-            $data[ $k ] = self::l10n_localize( $v );
+            $data[ $k ] = self::l10n_localize( $v, $l10n );
           } elseif ( is_string( $v ) ) {
             if ( strpos( $v, 'l10n' ) !== false ) {
               preg_match_all( '/l10n\.([^\s]*)/', $v, $matches );
@@ -2395,6 +2517,55 @@ namespace UsabilityDynamics {
         }
 
         return $data;
+      }
+      
+      /**
+       * Wrapper for json_encode function.
+       * Emulates JSON_UNESCAPED_UNICODE.
+       *
+       * @param type $arr
+       * @return JSON
+       * @author peshkov@UD
+       */
+      static public function json_encode( $arr ) {
+        // convmap since 0x80 char codes so it takes all multibyte codes (above ASCII 127). So such characters are being "hidden" from normal json_encoding
+        array_walk_recursive( $arr, create_function( '&$item, $key', 'if (is_string($item)) $item = mb_encode_numericentity($item, array (0x80, 0xffff, 0, 0xffff), "UTF-8");' ) );
+        return mb_decode_numericentity( json_encode( $arr ), array( 0x80, 0xffff, 0, 0xffff ), 'UTF-8' );
+      }
+      
+      /**
+       * Merges any number of arrays / parameters recursively,
+       *
+       * Replacing entries with string keys with values from latter arrays.
+       * If the entry or the next value to be assigned is an array, then it
+       * automagically treats both arguments as an array.
+       * Numeric entries are appended, not replaced, but only if they are
+       * unique
+       *
+       * @source http://us3.php.net/array_merge_recursive
+       * @version 0.4
+       */
+      static public function array_merge_recursive_distinct() {
+        $arrays = func_get_args();
+        $base = array_shift( $arrays );
+        if ( !is_array( $base ) ) $base = empty( $base ) ? array() : array( $base );
+        foreach ( (array)$arrays as $append ) {
+          if ( !is_array( $append ) ) $append = empty( $append ) ? array() : array( $append );
+          foreach ( (array)$append as $key => $value ) {
+            if ( !array_key_exists( $key, $base ) and !is_numeric( $key ) ) {
+              $base[ $key ] = $append[ $key ];
+              continue;
+            }
+            if ( @is_array( $value ) && isset( $base[ $key ] ) && isset( $append[ $key ] ) && is_array( $base[ $key ] ) && is_array( $append[ $key ] ) ) {
+              $base[ $key ] = self::array_merge_recursive_distinct( $base[ $key ], $append[ $key ] );
+            } else if ( is_numeric( $key ) ) {
+              if ( !in_array( $value, $base ) ) $base[ ] = $value;
+            } else {
+              $base[ $key ] = $value;
+            }
+          }
+        }
+        return $base;
       }
 
     }

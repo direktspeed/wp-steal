@@ -112,13 +112,28 @@
     </style>
   </head>
   <body>  
-    <h2 id="usage">Usage</h2>
+    <h2 id="storage-usage">Storage Usage</h2>
+<p>Storage module is developed for client-side persistant storing of key &amp; value pairs.</p>
+<pre><code class="lang-javascript">
+ // Initialize Storage.
+ var Storage = require( &#39;udx.storage&#39; ).create();
+
+  // Set some values.
+ Storage.setItem( &#39;name&#39;, &#39;Andy&#39; );
+ Storage.setItem( &#39;latitude&#39;, &#39;34.4239&#39; );
+ Storage.setItem( &#39;longitude&#39;, &#39;-77.5584&#39; );
+
+ // Later...
+ console.log( &#39;Welcome&#39;, Storage.getItem( &#39;name&#39; ), &#39;we have you located at&#39;, Storage.getItem( &#39;latitude&#39; ), &#39;, &#39;, Storage.getItem( &#39;longitude&#39; ) );</code></pre>
+<p>Storage attempts to save data into localStorage, if the browser supports it. Otherwise we fallback to Cookie storage.</p>
+<h2 id="settings-usage">Settings Usage</h2>
 <pre><code class="lang-php">// Instantiate and load Settings.
 $settings  = new Settings(array(
   &quot;store&quot; =&gt; &quot;options&quot;,
   &quot;key&quot; =&gt; &quot;settings_test&quot;,
   &quot;format&quot; =&gt; &quot;object&quot;,
-  &quot;auto_commit&quot; =&gt; true
+  &quot;auto_commit&quot; =&gt; true,
+  &quot;data&quot; =&gt; array( &#39;initial data&#39;, &#39;blah&#39; )
 ));
 
 $settings-&gt;set( &#39;make&#39;, &#39;Chevy&#39; );

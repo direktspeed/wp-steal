@@ -7,28 +7,39 @@
  */
 module.exports = function build( grunt ) {
 
+  // Automatically Load Tasks.
+  require( 'load-grunt-tasks' )( grunt, {
+    pattern: 'grunt-*',
+    config: './package.json',
+    scope: 'devDependencies'
+  });
+
   grunt.initConfig( {
 
-    pkg: grunt.file.readJSON( 'composer.json' ),
+    package: grunt.file.readJSON( 'composer.json' ),
 
-    // Generate Locale Files.
-    makepot: {
-      target: {
-        options: {
-          domainPath: 'static/languages',
-          mainFile: 'wp-amd.php',
-          potFilename: 'wp-amd.pot',
-          type: 'wp-plugin'
-        }
+    // Locale.
+    pot: {
+      options:{
+        package_name: 'wp-amd',
+        package_version: '<%= package.version %>',
+        text_domain: 'wp-amd',
+        dest: 'static/languages/',
+        keywords: [ 'gettext', 'ngettext:1,2' ]
+      },
+      files:{
+        src:  [ '**/*.php', 'lib/*.php' ],
+        expand: true
       }
     },
-
+    
+    // Documentation.
     yuidoc: {
       compile: {
-        name: '<%= pkg.name %>',
-        description: '<%= pkg.description %>',
-        version: '<%= pkg.version %>',
-        url: '<%= pkg.homepage %>',
+        name: '<%= package.name %>',
+        description: '<%= package.description %>',
+        version: '<%= package.version %>',
+        url: '<%= package.homepage %>',
         options: {
           paths: 'lib',
           outdir: 'static/codex/'
@@ -44,8 +55,8 @@ module.exports = function build( grunt ) {
           relativeUrls: true
         },
         files: {
-          'styles/wp-amd.css': [ 'styles/src/wp-amd.less' ],
-          'styles/wp.amd.editor.style.css': [ 'styles/src/wp.amd.editor.style.less' ]
+          'static/styles/wp-amd.css': [ 'static/styles/src/wp-amd.less' ],
+          'static/styles/wp.amd.editor.style.css': [ 'static/styles/src/wp.amd.editor.style.less' ]
         }
       },
       development: {
@@ -53,7 +64,7 @@ module.exports = function build( grunt ) {
           relativeUrls: true
         },
         files: {
-          'styles/wp-amd.dev.css': [ 'styles/src/wp-amd.less' ]
+          'static/styles/wp-amd.dev.css': [ 'static/styles/src/wp-amd.less' ]
         }
       }
     },
@@ -65,13 +76,13 @@ module.exports = function build( grunt ) {
       },
       less: {
         files: [
-          'styles/src/*.*'
+          'static/styles/src/*.*'
         ],
         tasks: [ 'less' ]
       },
       js: {
         files: [
-          'scripts/src/*.*'
+          'static/scripts/src/*.*'
         ],
         tasks: [ 'uglify' ]
       }
@@ -86,9 +97,9 @@ module.exports = function build( grunt ) {
         files: [
           {
             expand: true,
-            cwd: 'scripts/src',
+            cwd: 'static/scripts/src',
             src: [ '*.js' ],
-            dest: 'scripts'
+            dest: 'static/scripts'
           }
         ]
       },
@@ -100,9 +111,9 @@ module.exports = function build( grunt ) {
         files: [
           {
             expand: true,
-            cwd: 'scripts/src',
+            cwd: 'static/scripts/src',
             src: [ '*.js' ],
-            dest: 'scripts'
+            dest: 'static/scripts'
           }
         ]
       }
@@ -132,67 +143,80 @@ module.exports = function build( grunt ) {
 
     clean: {
       all: [
-        "composer.lock",
-        "scripts/app.js",
-        "scripts/contact-form-7.js",
-        "scripts/foobox.js",
-        "scripts/require.js",
-        "scripts/utility.js",
-        "components/*",
-        "vendor/*",
-        "styles/*.css",
-        "scripts/emitter",
-        "scripts/event",
-        "scripts/indexof",
-        "scripts/ui",
-        "scripts/utility"
-      ],
-      "update": [
-        "composer.lock",
-        "vendor/*"
+        "composer.lock"
       ]
     },
 
-    symlink: {
-
-      explicit: {
-        dest: 'vendor/usabilitydynamics',
-        src: '/vendor/usabilitydynamics'
-      }
-
-    },
-
     shell: {
+      /**
+       * Runs PHPUnit test, creates code coverage and sends it to Scrutinizer
+       */
+      coverageScrutinizer: {
+        command: [
+          'grunt phpunit:circleci --coverage-clover=coverage.clover',
+          'wget https://scrutinizer-ci.com/ocular.phar',
+          'php ocular.phar code-coverage:upload --format=php-clover coverage.clover'
+        ].join( ' && ' ),
+        options: {
+          encoding: 'utf8',
+          stderr: true,
+          stdout: true
+        }
+      },
+      /**
+       * Runs PHPUnit test, creates code coverage and sends it to Code Climate
+       */
+      coverageCodeClimate: {
+        command: [
+          'grunt phpunit:circleci --coverage-clover build/logs/clover.xml',
+          'CODECLIMATE_REPO_TOKEN='+ process.env.CODECLIMATE_REPO_TOKEN + ' ./vendor/bin/test-reporter'
+        ].join( ' && ' ),
+        options: {
+          encoding: 'utf8',
+          stderr: true,
+          stdout: true
+        }
+      },
       update: {
         options: {
           stdout: true
         },
         command: 'composer update --prefer-source'
       }
+    },
+    
+    // Runs PHPUnit Tests
+    phpunit: {
+      classes: {},
+      options: {
+        bin: './vendor/bin/phpunit'
+      },
+      local: {
+        configuration: './test/php/phpunit.xml'
+      },
+      circleci: {
+        configuration: './test/php/phpunit-circle.xml'
+      }
     }
 
   });
 
-  // Load tasks
-  grunt.loadNpmTasks( 'grunt-markdown' );
-  grunt.loadNpmTasks( 'grunt-contrib-yuidoc' );
-  grunt.loadNpmTasks( 'grunt-contrib-uglify' );
-  grunt.loadNpmTasks( 'grunt-contrib-watch' );
-  grunt.loadNpmTasks( 'grunt-contrib-less' );
-  grunt.loadNpmTasks( 'grunt-contrib-concat' );
-  grunt.loadNpmTasks( 'grunt-contrib-clean' );
-  grunt.loadNpmTasks( 'grunt-wp-i18n' );
-
   // Register tasks
   grunt.registerTask( 'default', [ 'markdown', 'less' , 'yuidoc', 'uglify' ] );
-
-  // Build Distribution
-  grunt.registerTask( 'distribution', [] );
-
+  
   // Update Environment
-  grunt.registerTask( 'update', [ "clean:update", "shell:update" ] );
+  grunt.registerTask( 'update', [ "clean", "shell:update" ] );
 
-  // Clean, preparing for update
-  grunt.registerTask( 'clean', [  ] );
+  // Install for development.
+  grunt.registerTask( 'install', [ 'pot', 'default' ] );
+
+  // Build Distribution.
+  grunt.registerTask( 'build', [ 'pot', 'default' ] );
+
+  // Run coverage tests
+  grunt.registerTask( 'testscrutinizer', [ 'shell:coverageScrutinizer' ] );
+  grunt.registerTask( 'testcodeclimate', [ 'shell:coverageCodeClimate' ] );
+  
+  grunt.registerTask( 'localtest', [ 'phpunit:local' ] );
 
 };

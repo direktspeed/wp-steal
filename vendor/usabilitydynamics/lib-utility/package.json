@@ -1,13 +1,13 @@
 {
   "name": "lib-utility",
-  "version": "0.3.1",
+  "version": "0.3.2",
   "description": "Utility Library.",
   "private": true,
   "repository": {
     "type": "git",
     "url": "https://github.com/UsabilityDynamics/lib-utility"
   },
-  "main": "scripts/settings",
+  "main": "scripts/udx.utility.js",
   "engines": {
     "node": ">= 0.10.0"
   },
@@ -23,6 +23,8 @@
     "grunt-shell": "~0.6.0",
     "grunt-contrib-less": "~0.8.3",
     "grunt-mocha-cli": "~1.5.0",
-    "grunt-mocha-cov": "~0.1.1"
+    "grunt-mocha-cov": "~0.1.1",
+    "grunt-phpunit": "~0.3.3",
+    "findup-sync": "~0.1.3"
   }
 }
