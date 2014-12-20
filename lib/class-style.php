@@ -100,7 +100,7 @@ namespace UsabilityDynamics\AMD {
        * @author peshkov@UD
        */
       public function customize_live_preview() {
-        wp_enqueue_script( 'wp-amd-themecustomizer', plugins_url( '/static/scripts/wp.amd.customizer.style.js', dirname( __DIR__  ) ), array( 'jquery','customize-preview' ), '', true );
+        wp_enqueue_script( 'wp-amd-themecustomizer', plugins_url( '/static/scripts/wp.amd.customizer.style.js', __DIR__ ), array( 'jquery','customize-preview' ), '', true );
         wp_localize_script( 'wp-amd-themecustomizer', 'wp_amd_themecustomizer', array( 'name' => $this->name, 'link_id' => 'wp-amd-' . $this->get( 'type' ) . '-css' ));
       }
     
