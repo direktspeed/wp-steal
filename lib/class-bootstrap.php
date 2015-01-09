@@ -165,7 +165,7 @@ namespace UsabilityDynamics\AMD {
         $this->script   = new Script( $this->get( 'assets.script' ), $this );
 
         // AJAX Update Handler.
-        add_action( 'wp_ajax_/amd/asset', array( $this, 'ajax_handler' ) );
+        add_action( 'wp_ajax_/amd/v1/asset', array( $this, 'ajax_handler' ) );
 
         // Handle dynamic URL identification for plugin assets.
         add_filter( 'includes_url', array( $this, 'includes_url' ), 20, 2 );
@@ -218,10 +218,11 @@ namespace UsabilityDynamics\AMD {
 
         $_data = $_POST[ 'data' ];
         $_type = $_POST[ 'type' ];
+        $_dependency = $_POST[ 'dependency' ];
 
         if( !$_type || !method_exists( $this->{$_type}, 'save_asset' ) ) {
 
-          return wp_send_json(array(
+          wp_send_json(array(
             'ok' => false,
             'message' => __( 'Unexpected error occured.', $this->get( 'locale' ) )
           ));
@@ -230,15 +231,18 @@ namespace UsabilityDynamics\AMD {
 
         if( !is_wp_error( $_revision = $this->{$_type}->save_asset( $_data ) ) ) {
 
-          return wp_send_json(array(
+          update_post_meta( $_revision, 'dependency', is_array( $_dependency ) ? $_dependency : array() );
+
+          wp_send_json(array(
             'ok' => false,
             'revision' => $_revision,
+            'dependency' => $_dependency,
             'message' => __( 'Asset saved successfully.', $this->get( 'locale' ) )
           ));
 
         }
 
-        return wp_send_json(array(
+        wp_send_json(array(
           'ok' => false,
           'message' => __( 'Unable to save asset.', $this->get( 'locale' ) )
         ));

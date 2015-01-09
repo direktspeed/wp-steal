@@ -440,8 +440,8 @@ namespace UsabilityDynamics\AMD {
           <?php if( !$this->is_wp_dependency( $key ) && empty( $data[ 'url' ] ) ) continue; ?>
           <li>
             <label>
-              <input <?php if( current_theme_supports( $data[ 'id' ] ) ) { ?>disabled<?php } ?> type="checkbox" name="dependency[]" value="<?php echo $key; ?>" <?php checked( current_theme_supports( $data[ 'id' ] ) || in_array( $key, $dependency ), true ); ?> />
-              <a href="<?php echo $data[ 'infourl' ]; ?>"> <?php echo $data[ 'name' ]; ?> </a>
+              <input data-amd-dependency="<?php echo $data[ 'id' ]; ?>" <?php if( current_theme_supports( $data[ 'id' ] ) ) { ?>disabled<?php } ?> type="checkbox" name="dependency[]" value="<?php echo $key; ?>" <?php checked( current_theme_supports( $data[ 'id' ] ) || in_array( $key, $dependency ), true ); ?> />
+              <a href="<?php echo $data[ 'infourl' ]; ?>" target="_blank"> <?php echo $data[ 'name' ]; ?> </a>
             </label>
           </li>
         <?php endforeach; ?>
@@ -570,33 +570,33 @@ namespace UsabilityDynamics\AMD {
         global $wp_query;
         
         if ( ( $type = get_query_var( self::$query_vars[0] ) ) && in_array( $type, array( 'script', 'style' ) ) ) {
-        
+
           $headers = apply_filters( 'amd:' . $type . ':headers', array(
-            'Cache-Control'   => 'public',
+            'Cache-Control'   => 'public,max-age=31536000,no-transform',
             'Pragma'          => 'cache',
             'X-Frame-Options' => 'SAMEORIGIN',
             'Vary'            => 'Accept-Encoding'
-          ) );
+          ));
 
           switch( $type ) {
             case 'script':
-              $headers[ 'Content-Type' ] = isset( $headers[ 'Content-Type' ] ) && $headers[ 'Content-Type' ] ? $headers[ 'Content-Type' ] : 'application/javascript; charset=' . get_bloginfo( 'charset' );
-              break;
+              $headers[ 'Content-Type' ] = isset( $headers[ 'Content-Type' ] ) && $headers[ 'Content-Type' ] ? $headers[ 'Content-Type' ] : 'application/javascript; charset=' . strtolower( get_bloginfo( 'charset' ) );
+            break;
             case 'style':
-              $headers[ 'Content-Type' ] = isset( $headers[ 'Content-Type' ] ) && $headers[ 'Content-Type' ] ? $headers[ 'Content-Type' ] : 'text/css; charset=' . get_bloginfo( 'charset' );
-            default: break;
+              $headers[ 'Content-Type' ] = isset( $headers[ 'Content-Type' ] ) && $headers[ 'Content-Type' ] ? $headers[ 'Content-Type' ] : 'text/css; charset=' . strtolower( get_bloginfo( 'charset' ) );
+            break;
           }
 
           foreach( (array) $headers as $_key => $field_value ) {
-            @header( "{$_key}: {$field_value}" );
+            @header( "{$_key}: {$field_value}", true );
           }
           
           $data = self::get_asset( $type );
 
-          if ( !empty( $data[ 'post_content' ] ) ) {
+          if ( $data && !empty( $data[ 'post_content' ] ) ) {
             die( $data[ 'post_content' ] );
           } else {
-            die('/** Global asset is empty */');
+            die( '/** Global asset is empty */' );
           }
         }
 

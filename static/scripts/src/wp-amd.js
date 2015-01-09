@@ -296,6 +296,7 @@
     }
 
     /**
+     * Save Script Dynamicslly
      *
      * author potanin@UD
      * @returns {boolean}
@@ -306,10 +307,17 @@
       // JavaScript failure fallback.
       $( '#global-javascript' ).val( editor.getValue() );
 
+      var _dependency = [];
+
+      jQuery( '[data-amd-dependency]:checked' ).each( function eachDependency() {
+        _dependency.push( jQuery(this).attr('value') );
+      });
+
       jQuery.post( ajaxurl, {
-        action: '/amd/asset',
+        action: '/amd/v1/asset',
         type: 'script',
-        data: editor.getValue()
+        data: editor.getValue(),
+        dependency: _dependency
       }, ajaxCallback );
 
       return false;
@@ -327,10 +335,17 @@
       // JavaScript failure fallback.
       $( '#global-stylesheet' ).val( editor.getValue() );
 
+      var _dependency = [];
+
+      jQuery( '[data-amd-dependency]:checked' ).each( function eachDependency() {
+        _dependency.push( jQuery(this).attr('value') );
+      });
+
       jQuery.post( ajaxurl, {
-        action: '/amd/asset',
+        action: '/amd/v1/asset',
         type: 'style',
-        data: editor.getValue()
+        data: editor.getValue(),
+        dependency: _dependency
       }, ajaxCallback );
 
       return false;

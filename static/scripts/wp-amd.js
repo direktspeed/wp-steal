@@ -145,19 +145,27 @@
             });
         }
         function saveScript() {
-            return debug("wp-amd", "Saving script asset."), $("#global-javascript").val(editor.getValue()), 
-            jQuery.post(ajaxurl, {
-                action: "/amd/asset",
+            debug("wp-amd", "Saving script asset."), $("#global-javascript").val(editor.getValue());
+            var _dependency = [];
+            return jQuery("[data-amd-dependency]:checked").each(function() {
+                _dependency.push(jQuery(this).attr("value"));
+            }), jQuery.post(ajaxurl, {
+                action: "/amd/v1/asset",
                 type: "script",
-                data: editor.getValue()
+                data: editor.getValue(),
+                dependency: _dependency
             }, ajaxCallback), !1;
         }
         function saveStyle() {
-            return debug("wp-amd", "Saving CSS asset."), $("#global-stylesheet").val(editor.getValue()), 
-            jQuery.post(ajaxurl, {
-                action: "/amd/asset",
+            debug("wp-amd", "Saving CSS asset."), $("#global-stylesheet").val(editor.getValue());
+            var _dependency = [];
+            return jQuery("[data-amd-dependency]:checked").each(function() {
+                _dependency.push(jQuery(this).attr("value"));
+            }), jQuery.post(ajaxurl, {
+                action: "/amd/v1/asset",
                 type: "style",
-                data: editor.getValue()
+                data: editor.getValue(),
+                dependency: _dependency
             }, ajaxCallback), !1;
         }
         console.debug("wp-amd", "Ready.");
