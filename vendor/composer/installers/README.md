@@ -33,6 +33,7 @@ is not needed to install packages with these frameworks:
 
 | Framework    | Types
 | ---------    | -----
+| Asgard      | `asgard-module`<br>`asgard-theme`
 | AGL          | `agl-module`
 | AnnotateCms  | `annotatecms-module`<br>`annotatecms-component`<br>`annotatecms-service`
 | Bitrix       | `bitrix-module`<br>`bitrix-component`<br>`bitrix-theme`
@@ -42,6 +43,7 @@ is not needed to install packages with these frameworks:
 | concrete5    | `concrete5-block`<br>`concrete5-package`<br>`concrete5-theme`<br>`concrete5-update`
 | Craft        | `craft-plugin`
 | Croogo       | `croogo-plugin`<br>`croogo-theme`
+| DokuWiki     | `dokuwiki-plugin`<br>`dokuwiki-template`
 | Dolibarr     | `dolibarr-module`
 | Drupal       | <b>`drupal-module`<br>`drupal-theme`</b><br>`drupal-library`<br>`drupal-profile`<br>`drupal-drush`
 | Elgg         | `elgg-plugin`

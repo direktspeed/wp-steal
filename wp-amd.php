@@ -5,7 +5,7 @@
  * Plugin URI: http://UsabilityDynamics.com/plugins/wp-amd/
  * Description: Global JS and CSS handling.
  * Author: Usability Dynamics, Inc
- * Version: 1.2.0
+ * Version: 1.2.1
  * Author URI: http://UsabilityDynamics.com
  * Domain Path: /static/languages/
  * Text Domain: wp-amd
