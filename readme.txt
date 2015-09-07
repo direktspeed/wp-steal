@@ -2,9 +2,9 @@
 Contributors: usability_dynamics, andypotanin, jbrw1984, maxim.peshkov, anton-korotkoff, ideric
 Donate link: http://usabilitydynamics.com/
 Tags: JS, CSS, Global JS, Global CSS, JS handling, CSS handling, Customizer, customize, theme.
-Requires at least: 3.6.0
-Tested up to: 3.9
-Stable tag: 1.0.4
+Requires at least: 4.0
+Tested up to: 4.3
+Stable tag: 1.2.1
 
 == Description ==
 
