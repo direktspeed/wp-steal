@@ -9,7 +9,7 @@ namespace UsabilityDynamics\UI {
       public $size = NULL;
       public $datalist = NULL;
       public $placeholder = NULL;
-    
+
       /**
        * Get field HTML
        *
@@ -18,16 +18,17 @@ namespace UsabilityDynamics\UI {
        *
        * @return string
        */
-      public function html( $value, $field ) {
+      static public function html( $value, $field ) {
         return sprintf(
-          '<input type="text" class="sui-text" name="%s" id="%s" value="%s" placeholder="%s" size="%s" %s>%s',
+          '<input type="text" class="sui-text" name="%s" id="%s" value="%s" data-extra="%s" placeholder="%s" size="%s" %s>%s',
           $field->field_name,
           $field->id,
           $value,
+          $field->extra,
           $field->placeholder,
           $field->size,
-          !$field->datalist ?  '' : "list='{$this->datalist[ 'id' ]}'",
-          $this->datalist_html( $field )
+          !$field->datalist ?  '' : "list='{$field->datalist[ 'id' ]}'",
+          self::datalist_html( $field )
         );
       }
 
@@ -40,7 +41,7 @@ namespace UsabilityDynamics\UI {
        */
       static public function normalize_field( $field ) {
         $field = wp_parse_args( $field, array(
-          'size'        => 30,
+          'size'        => 20,
           'datalist'    => false,
           'placeholder' => '',
         ) );
@@ -54,7 +55,7 @@ namespace UsabilityDynamics\UI {
        *
        * @return array
        */
-      public function datalist_html( $field ) {
+      static public function datalist_html( $field ) {
         if( !$field->datalist ) {
           return '';
         }

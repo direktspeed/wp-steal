@@ -26,8 +26,8 @@
   "require": {
     "php": ">=5.3",
     "composer/installers": "~1.0",
-    "usabilitydynamics/lib-ui": "~0.2",
-    "usabilitydynamics/lib-settings": "~0.2",
+    "usabilitydynamics/lib-ui": "0.3.4",
+    "usabilitydynamics/lib-settings": "0.2.3",
     "UsabilityDynamics/lib-requires": "~3.1"
   },
   "require-dev": {

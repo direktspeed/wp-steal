@@ -34,6 +34,15 @@ Visit project on GitHub: https://github.com/UsabilityDynamics/wp-amd
 
 == Changelog ==
 
+= 1.2.1 =
+* Updated vendor libraries. Old versions occurred conflicts when other UD plugins were activated.
+* Fixed typos.
+* Fixed dependency saving/updating, which did not work when forms were saved via AJAX.
+* Fixed incorrect plugin_url usage.
+* Fixed WPML translation issue with js and css not being properly included.
+* Other improvements and fixes.
+
+
 = 1.1.0 =
 * Added disk caching, with location configurable via "wp-amd:script:disk_cache" filter.
 * Added Metaboxes, Screen Options and Screen Help. (WIP)

@@ -24,6 +24,7 @@ namespace UsabilityDynamics\UI {
       public $required = NULL;
       public $placeholder = NULL;
       public $value = NULL;
+      public $extra = NULL;
       
       /**
        * Constructor.
@@ -33,6 +34,7 @@ namespace UsabilityDynamics\UI {
         foreach( $params as $i => $v ) {
           $this->{$i} = $v;
         }
+        $this::admin_enqueue_scripts();
       }
 
       /**
@@ -44,28 +46,30 @@ namespace UsabilityDynamics\UI {
        */
       static public function init( $params = array() ) {
         $params = wp_parse_args( (array)$params, array(
-          'id'            => false,
-          'name'          => isset( $params['id'] ) ? $params['id'] : '',
-          'multiple'      => false,
-          'clone'         => false,
-          'clone_group'   => false,
-          'desc'          => '',
-          'format'        => '',
-          'type'          => 'text',
-          'before'        => '',
-          'after'         => '',
-          'field_name'    => isset( $params['id'] ) ? $params['id'] : false,
-          'required'      => false,
-          'placeholder'   => '',
-          'value'         => '',
+          'id'             => false,
+          'name'           => isset( $params['id'] ) ? $params['id'] : '',
+          'multiple'       => false,
+          'clone'          => false,
+          'clone_group'    => false,
+          'desc'           => '',
+          'format'         => '',
+          'type'           => 'text',
+          'before'         => '',
+          'after'          => '',
+          'field_name'     => isset( $params['id'] ) ? $params['id'] : false,
+          'required'       => false,
+          'placeholder'    => '',
+          'value'          => '',
+          'options'        => array()
         ) );
         // 'id' and 'field_name' are required! Break if we don'ts have any of them.
         if( !$params[ 'id' ] || empty( $params[ 'field_name' ] ) ) {
           return false;
         }
-        
+
         $class = get_called_class();
         $params = $class::normalize_field( $params );
+
         return new $class( $params );
       }
     
@@ -81,7 +85,7 @@ namespace UsabilityDynamics\UI {
        *
        * @return void
        */
-      public function admin_enqueue_scripts() {}
+      static public function admin_enqueue_scripts() {}
 
       /**
        * Show field HTML
@@ -124,7 +128,7 @@ namespace UsabilityDynamics\UI {
             $input_html = '<div class="uisf-clone">';
 
             // Call separated methods for displaying each type of field
-            $input_html .= $this->html( $sub_value, $sub_field );
+            $input_html .= $this::html( $sub_value, $sub_field );
 
             // Apply filter to field HTML
             // 1st filter applies to all fields with the same type
@@ -194,7 +198,7 @@ namespace UsabilityDynamics\UI {
        *
        * @return string
        */
-      public function html( $value, $field ) {
+      static public function html( $value, $field ) {
         return '';
       }
 
