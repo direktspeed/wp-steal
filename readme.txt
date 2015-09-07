@@ -36,7 +36,9 @@ Visit project on GitHub: https://github.com/UsabilityDynamics/wp-amd
 
 = 1.2.1 =
 * Updated vendor libraries. Old versions occurred conflicts when other UD plugins were activated.
+* Fixed Content-Type response headers.
 * Fixed typos.
+* Fixed PHP Warnings and Notices.
 * Fixed dependency saving/updating, which did not work when forms were saved via AJAX.
 * Fixed incorrect plugin_url usage.
 * Fixed WPML translation issue with js and css not being properly included.

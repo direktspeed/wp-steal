@@ -149,6 +149,21 @@ module.exports = function build( grunt ) {
 
     shell: {
       /**
+       * Make Production Build and create new tag ( release ) on Github.
+       */
+      release: {
+        command: function( tag ) {
+          return [
+            'sh build.sh ' + tag
+          ].join( ' && ' );
+        },
+        options: {
+          encoding: 'utf8',
+          stderr: true,
+          stdout: true
+        }
+      },
+      /**
        * Runs PHPUnit test, creates code coverage and sends it to Scrutinizer
        */
       coverageScrutinizer: {
@@ -218,5 +233,11 @@ module.exports = function build( grunt ) {
   grunt.registerTask( 'testcodeclimate', [ 'shell:coverageCodeClimate' ] );
   
   grunt.registerTask( 'localtest', [ 'phpunit:local' ] );
+
+  // Make Production release and create new tag ( release ) on Github.
+  grunt.registerTask( 'release', 'Run all my release tasks.', function( tag ) {
+    if ( tag == null ) grunt.warn( 'Release tag must be specified, like release:1.0.0' );
+    grunt.task.run( 'shell:release:' + tag );
+  });
 
 };

@@ -455,23 +455,9 @@ namespace UsabilityDynamics\AMD {
        * @internal param $_post
        */
       public function render_metabox_revisions( $post ) {
-
-        // Specify numberposts and ordering args
-        $args = array(
-          'numberposts' => 5,
-          'orderby' => 'ID',
-          'order' => 'DESC'
-        );
-
-        // Remove numberposts from args if show_all_rev is specified
-        if( isset( $_GET[ 'show_all_rev' ] ) ) {
-          unset( $args[ 'numberposts' ] );
-        }
-
         if( isset( $post[ 'ID' ] ) ) {
-          wp_list_post_revisions( $post[ 'ID' ], $args );
+          wp_list_post_revisions( $post[ 'ID' ], 'revision' );
         }
-
       }
 
       /**

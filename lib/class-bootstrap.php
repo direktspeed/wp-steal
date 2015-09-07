@@ -218,7 +218,10 @@ namespace UsabilityDynamics\AMD {
 
         $_data = $_POST[ 'data' ];
         $_type = $_POST[ 'type' ];
-        $_dependency = $_POST[ 'dependency' ];
+        $_dependency = isset( $_POST[ 'dependency' ] ) ? $_POST[ 'dependency' ] : array();
+        if( !is_array( $_dependency ) ) {
+          $_dependency = array();
+        }
 
         if( !$_type || !method_exists( $this->{$_type}, 'save_asset' ) ) {
 
@@ -231,7 +234,7 @@ namespace UsabilityDynamics\AMD {
 
         if( !is_wp_error( $_revision = $this->{$_type}->save_asset( $_data ) ) ) {
 
-          update_post_meta( $_revision, 'dependency', is_array( $_dependency ) ? $_dependency : array() );
+          update_post_meta( $_revision, 'dependency', $_dependency );
 
           wp_send_json(array(
             'ok' => false,
