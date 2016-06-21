@@ -55,7 +55,7 @@ namespace UsabilityDynamics\AMD {
           
           //** rewrite and respond */
           add_action( 'query_vars', array( __CLASS__, 'query_vars' ) );
-          add_filter( 'pre_update_option_rewrite_rules', array( &$this, 'update_option_rewrite_rules' ), 1 );
+          add_filter( 'update_option_rewrite_rules', array( &$this, 'update_option_rewrite_rules' ), 1 );
           add_filter( 'template_include', array( __CLASS__, 'return_asset' ), 1, 1 );
           
           //** Register assets and post_type */
