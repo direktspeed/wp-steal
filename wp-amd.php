@@ -2,16 +2,16 @@
 /**
  * Plugin Name: WP-AMD
  * Text Domain: wp-amd
- * Plugin URI: http://UsabilityDynamics.com/plugins/wp-amd/
+ * Plugin URI: https://www.usabilitydynamics.com
  * Description: Global JS and CSS handling.
  * Author: Usability Dynamics, Inc
- * Version: 1.2.1
- * Author URI: http://UsabilityDynamics.com
+ * Version: 1.2.2
+ * Author URI: https://www.usabilitydynamics.com
  * Domain Path: /static/languages/
  * Text Domain: wp-amd
  * GitHub Plugin URI: UsabilityDynamics/wp-amd
  *
- * Copyright 2011-2014  Usability Dynamics, Inc.   (email : info@UsabilityDynamics.com)
+ * Copyright 2011-2016  Usability Dynamics, Inc.   (email : info@UsabilityDynamics.com)
  *
  * Created by Usability Dynamics, Inc
  * (website: UsabilityDynamics.com       email : info@UsabilityDynamics.com)

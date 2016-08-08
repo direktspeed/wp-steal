@@ -3,8 +3,8 @@ Contributors: usability_dynamics, andypotanin, jbrw1984, maxim.peshkov, anton-ko
 Donate link: http://usabilitydynamics.com/
 Tags: JS, CSS, Global JS, Global CSS, JS handling, CSS handling, Customizer, customize, theme.
 Requires at least: 4.0
-Tested up to: 4.3
-Stable tag: 1.2.1
+Tested up to: 4.5.3
+Stable tag: 1.2.2
 
 == Description ==
 
@@ -33,6 +33,9 @@ Visit project on GitHub: https://github.com/UsabilityDynamics/wp-amd
 4. Or visit Appearance -> Customize -> Custom Styles to update CSS in preview mode.
 
 == Changelog ==
+
+= 1.2.2 =
+* Fixed the bug related to removing all rewrite rules ( breaking permalinks ).
 
 = 1.2.1 =
 * Updated vendor libraries. Old versions occurred conflicts when other UD plugins were activated.

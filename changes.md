@@ -1,3 +1,6 @@
+#### 1.2.2
+* Fixed the bug related to removing all rewrite rules ( breaking permalinks ).
+
 #### 1.2.1
 * Updated vendor libraries. Old versions occurred conflicts when other UD plugins were activated.
 * Fixed Content-Type response headers.
