@@ -148,7 +148,11 @@ module.exports = function build( grunt ) {
     },
 
     clean: {
+      update: [
+        "composer.lock"
+      ],
       all: [
+        "vendor",
         "composer.lock"
       ]
     },
@@ -203,6 +207,30 @@ module.exports = function build( grunt ) {
           stdout: true
         },
         command: 'composer update --prefer-source'
+      },
+      /**
+       * Composer Install
+       */
+      install: {
+        command: function( env ) {
+          if( typeof env !== 'undefined' && env == 'dev' ) {
+            return [
+              "COMPOSER_CACHE_DIR=/dev/null composer install"
+            ].join( ' && ' );
+          } else {
+            return [
+              "COMPOSER_CACHE_DIR=/dev/null composer install --no-dev",
+              "rm -rf ./vendor/composer/installers",
+              "find ./vendor -name .git -exec rm -rf '{}' \\;",
+              "find ./vendor -name .svn -exec rm -rf '{}' \\;",
+            ].join( ' && ' );
+          }
+        },
+        options: {
+          encoding: 'utf8',
+          stderr: true,
+          stdout: true
+        }
       }
     },
     
@@ -228,8 +256,12 @@ module.exports = function build( grunt ) {
   // Update Environment
   grunt.registerTask( 'update', [ "clean", "shell:update" ] );
 
-  // Install for development.
-  grunt.registerTask( 'install', [ 'pot', 'default' ] );
+  // Install Environment
+  grunt.registerTask( 'install', 'Run all my install tasks.', function( env ) {
+    if ( env == null ) env = 'no-dev';
+    grunt.task.run( 'clean:all' );
+    grunt.task.run( 'shell:install:' + env );
+  });
 
   // Build Distribution.
   grunt.registerTask( 'build', [ 'pot', 'default' ] );

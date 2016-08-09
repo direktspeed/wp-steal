@@ -1,18 +1,21 @@
 [
     {
         "name": "composer/installers",
-        "version": "dev-master",
-        "version_normalized": "9999999-dev",
+        "version": "v1.1.0",
+        "version_normalized": "1.1.0.0",
         "source": {
             "type": "git",
             "url": "https://github.com/composer/installers.git",
-            "reference": "e420b539e8d7b38b7c6f3f99dccc0386bd3dfe41"
+            "reference": "a3595c5272a6f247228abb20076ed27321e4aae9"
         },
         "dist": {
             "type": "zip",
-            "url": "https://api.github.com/repos/composer/installers/zipball/e420b539e8d7b38b7c6f3f99dccc0386bd3dfe41",
-            "reference": "e420b539e8d7b38b7c6f3f99dccc0386bd3dfe41",
+            "url": "https://api.github.com/repos/composer/installers/zipball/a3595c5272a6f247228abb20076ed27321e4aae9",
+            "reference": "a3595c5272a6f247228abb20076ed27321e4aae9",
             "shasum": ""
+        },
+        "require": {
+            "composer-plugin-api": "^1.0"
         },
         "replace": {
             "roundcube/plugin-installer": "*",
@@ -22,18 +25,18 @@
             "composer/composer": "1.0.*@dev",
             "phpunit/phpunit": "4.1.*"
         },
-        "time": "2015-06-13 15:30:38",
-        "type": "composer-installer",
+        "time": "2016-07-05 06:18:20",
+        "type": "composer-plugin",
         "extra": {
-            "class": "Composer\\Installers\\Installer",
+            "class": "Composer\\Installers\\Plugin",
             "branch-alias": {
                 "dev-master": "1.0-dev"
             }
         },
-        "installation-source": "source",
+        "installation-source": "dist",
         "autoload": {
-            "psr-0": {
-                "Composer\\Installers\\": "src/"
+            "psr-4": {
+                "Composer\\Installers\\": "src/Composer/Installers"
             }
         },
         "notification-url": "https://packagist.org/downloads/",
@@ -48,13 +51,16 @@
             }
         ],
         "description": "A multi-framework Composer library installer",
-        "homepage": "http://composer.github.com/installers/",
+        "homepage": "https://composer.github.io/installers/",
         "keywords": [
             "Craft",
             "Dolibarr",
             "Hurad",
+            "ImageCMS",
             "MODX Evo",
+            "Mautic",
             "OXID",
+            "RadPHP",
             "SMF",
             "Thelia",
             "WolfCMS",
@@ -70,6 +76,7 @@
             "dokuwiki",
             "drupal",
             "elgg",
+            "expressionengine",
             "fuelphp",
             "grav",
             "installer",
@@ -98,17 +105,17 @@
     },
     {
         "name": "usabilitydynamics/lib-utility",
-        "version": "0.3.6",
-        "version_normalized": "0.3.6.0",
+        "version": "0.3.7",
+        "version_normalized": "0.3.7.0",
         "source": {
             "type": "git",
             "url": "git@github.com:UsabilityDynamics/lib-utility",
-            "reference": "0.3.6"
+            "reference": "0.3.7"
         },
         "dist": {
             "type": "zip",
-            "url": "https://github.com/UsabilityDynamics/lib-utility/archive/0.3.6.zip",
-            "reference": null,
+            "url": "https://github.com/UsabilityDynamics/lib-utility/archive/0.3.7.zip",
+            "reference": "0.3.7",
             "shasum": null
         },
         "require-dev": {
@@ -171,7 +178,7 @@
         "dist": {
             "type": "zip",
             "url": "https://github.com/UsabilityDynamics/lib-ui/archive/0.3.4.zip",
-            "reference": null,
+            "reference": "0.3.4",
             "shasum": null
         },
         "require": {
@@ -245,7 +252,7 @@
         "dist": {
             "type": "zip",
             "url": "https://github.com/UsabilityDynamics/lib-settings/archive/0.2.3.zip",
-            "reference": null,
+            "reference": "0.2.3",
             "shasum": null
         },
         "require": {
@@ -315,7 +322,7 @@
         "dist": {
             "type": "zip",
             "url": "https://github.com/UsabilityDynamics/lib-requires/archive/3.1.0.zip",
-            "reference": null,
+            "reference": "3.1.0",
             "shasum": null
         },
         "require": {
