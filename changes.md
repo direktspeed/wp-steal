@@ -1,3 +1,6 @@
+#### 1.5
+* Added Minit minification.
+
 #### 1.2.2
 * Fixed the bug related to removing all rewrite rules ( breaking permalinks ).
 

@@ -164,6 +164,11 @@ namespace UsabilityDynamics\AMD {
         $this->style    = new Style( $this->get( 'assets.style' ), $this );
         $this->script   = new Script( $this->get( 'assets.script' ), $this );
 
+
+        if( file_exists( dirname( __DIR__ ) . '/lib/class-minit.php' ) ) {
+          // require_once( dirname( __DIR__ ) . '/lib/class-minit.php' );
+        }
+
         // AJAX Update Handler.
         add_action( 'wp_ajax_/amd/v1/asset', array( $this, 'ajax_handler' ) );
 
