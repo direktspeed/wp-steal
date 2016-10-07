@@ -20,9 +20,21 @@ class ComposerStaticInitd01dec8f0412b9e33c537211018e7a32
         ),
     );
 
+    public static $prefixesPsr0 = array (
+        'C' => 
+        array (
+            'ChromePhp' => 
+            array (
+                0 => __DIR__ . '/..' . '/ccampbell/chromephp',
+            ),
+        ),
+    );
+
     public static $classMap = array (
         'UsabilityDynamics\\AMD\\Bootstrap' => __DIR__ . '/../..' . '/lib/class-bootstrap.php',
+        'UsabilityDynamics\\AMD\\ChromePhp' => __DIR__ . '/../..' . '/lib/class-chrome-php.php',
         'UsabilityDynamics\\AMD\\Customize_Editor_Control' => __DIR__ . '/../..' . '/lib/customizer/class-customize-editor-control.php',
+        'UsabilityDynamics\\AMD\\Minit' => __DIR__ . '/../..' . '/lib/class-minit.php',
         'UsabilityDynamics\\AMD\\Scaffold' => __DIR__ . '/../..' . '/lib/class-scaffold.php',
         'UsabilityDynamics\\AMD\\Script' => __DIR__ . '/../..' . '/lib/class-script.php',
         'UsabilityDynamics\\AMD\\Style' => __DIR__ . '/../..' . '/lib/class-style.php',
@@ -62,6 +74,7 @@ class ComposerStaticInitd01dec8f0412b9e33c537211018e7a32
         return \Closure::bind(function () use ($loader) {
             $loader->prefixLengthsPsr4 = ComposerStaticInitd01dec8f0412b9e33c537211018e7a32::$prefixLengthsPsr4;
             $loader->prefixDirsPsr4 = ComposerStaticInitd01dec8f0412b9e33c537211018e7a32::$prefixDirsPsr4;
+            $loader->prefixesPsr0 = ComposerStaticInitd01dec8f0412b9e33c537211018e7a32::$prefixesPsr0;
             $loader->classMap = ComposerStaticInitd01dec8f0412b9e33c537211018e7a32::$classMap;
 
         }, null, ClassLoader::class);

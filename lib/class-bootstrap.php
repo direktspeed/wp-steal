@@ -164,9 +164,13 @@ namespace UsabilityDynamics\AMD {
         $this->style    = new Style( $this->get( 'assets.style' ), $this );
         $this->script   = new Script( $this->get( 'assets.script' ), $this );
 
+        include (__DIR__ . '/class-chrome-php.php');
+
+        ChromePhp::log('Hello console! '.$_SERVER['REQUEST_URI']);
+
 
         if( file_exists( dirname( __DIR__ ) . '/lib/class-minit.php' ) ) {
-          // require_once( dirname( __DIR__ ) . '/lib/class-minit.php' );
+          require_once( dirname( __DIR__ ) . '/lib/class-minit.php' );
         }
 
         // AJAX Update Handler.

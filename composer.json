@@ -31,6 +31,7 @@
     "UsabilityDynamics/lib-requires": "~3.1"
   },
   "require-dev": {
+    "ccampbell/chromephp": "^4.1",
     "usabilitydynamics/lib-wp-phpunit": "master",
     "codeclimate/php-test-reporter": "dev-master"
   },

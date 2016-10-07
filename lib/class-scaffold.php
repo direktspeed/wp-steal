@@ -597,6 +597,12 @@ namespace UsabilityDynamics\AMD {
         $url = $this->get_asset_url();
         $dependencies = array();
         $post = self::get_asset( $this->get( 'type' ) );
+
+        if( !$post ) {
+          ChromePhp::log('wp-amd: Excluding asset because it is empty: ' .   $this->get( 'type' ) );
+          return;
+        }
+        //die( '<pre>' . print_r( $post, true ) . '</pre>' );
         if( !empty( $post ) ) {
           $dependencies = $this->get_saved_dependencies( $post[ 'ID' ] );
           $dependencies = $this->register_dependencies( $dependencies );
@@ -680,7 +686,7 @@ namespace UsabilityDynamics\AMD {
        *
        * @param $type
        *
-       * @return void
+       * @return array|bool
        */
       public static function get_asset( $type ) {
 

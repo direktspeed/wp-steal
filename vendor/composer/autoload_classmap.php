@@ -7,7 +7,9 @@ $baseDir = dirname($vendorDir);
 
 return array(
     'UsabilityDynamics\\AMD\\Bootstrap' => $baseDir . '/lib/class-bootstrap.php',
+    'UsabilityDynamics\\AMD\\ChromePhp' => $baseDir . '/lib/class-chrome-php.php',
     'UsabilityDynamics\\AMD\\Customize_Editor_Control' => $baseDir . '/lib/customizer/class-customize-editor-control.php',
+    'UsabilityDynamics\\AMD\\Minit' => $baseDir . '/lib/class-minit.php',
     'UsabilityDynamics\\AMD\\Scaffold' => $baseDir . '/lib/class-scaffold.php',
     'UsabilityDynamics\\AMD\\Script' => $baseDir . '/lib/class-script.php',
     'UsabilityDynamics\\AMD\\Style' => $baseDir . '/lib/class-style.php',
