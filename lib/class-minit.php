@@ -179,10 +179,7 @@ namespace UsabilityDynamics\AMD {
       if( isset( $cache[ 'cache_ver' ] ) && $cache[ 'cache_ver' ] == $cache_ver && file_exists( $cache[ 'file' ] ) )
         return $this->minit_enqueue_files( $object, $cache, $where );
 
-      Minit::console_log( array(
-        "where" => $where,
-        "data" => $minit_todo
-      ) );
+      Minit::log( "In [$where] in to-do: " . join( ", ", array_values( $minit_todo )));
 
       $_paths_used = array();
       $_modified_times = array();
@@ -222,7 +219,9 @@ namespace UsabilityDynamics\AMD {
 
       // Use highest modified time.
       if( is_array( $_modified_times ) ) {
-        $cache_ver = $cache_ver . '-' . md5( max( $_modified_times ) );
+        $_most_recent = max( $_modified_times );
+        Minit::log( "For [$extension] in [$where] setting cache_ver from modified times, where [" . $_most_recent . "] is the latest, hash is [" . md5( $_most_recent ) . "]." );
+        $cache_ver = $cache_ver . '-' . md5( $_most_recent );
       }
 
       $combined_file_path = sprintf( apply_filters( 'minit-file-pattern', '%s/minit/%s.%s', $extension, $where, $_modified_times ), $wp_upload_dir[ 'basedir' ], $cache_ver, $extension );
@@ -266,31 +265,30 @@ namespace UsabilityDynamics\AMD {
     }
 
     /**
-     * @param $message
+     * Outputs to frontend console via ChromePhp.
+     *
      */
-    function console_log( $message ) {
+    static public function log() {
 
-      if( is_array( $message ) ) {
-        $message = json_encode( $message );
-      } else {
-        $message = '"' . $message . '"';
+      if( !class_exists( 'UsabilityDynamics\AMD\ChromePhp' ) ) {
+        include (__DIR__ . '/class-chrome-php.php');
       }
 
-      if( defined( 'WP_DEBUG_MINIT' ) && WP_DEBUG_MINIT ) {
-        echo "<script type='text/javascript'>console.log('minit'," . $message . ");</script>";
+      if( class_exists( 'UsabilityDynamics\AMD\ChromePhp' ) ) {
+        $_args = func_get_args();
+        array_unshift( $_args, "wp-amd:minit:" );
+        call_user_func_array( array('UsabilityDynamics\AMD\ChromePhp', 'log' ), $_args );
       }
 
     }
 
     function minit_enqueue_files( &$object, $status, $where ) {
 
-      extract( $status );
-
-      Minit::console_log( "minit_enqueue_files " . ' ' . $extension . ' ' . $where );
+      Minit::log( "minit_enqueue_files " . ' ' . $status['extension'] . ' ' . $where . " cache_ver: [" . $status['cache_ver'] . "]" );
 
       //$minit_exclude = (array)apply_filters( 'minit-exclude-js', array() );
 
-      switch( $extension ) {
+      switch( $status['extension'] ) {
 
         case 'css':
 
@@ -341,7 +339,7 @@ namespace UsabilityDynamics\AMD {
       }
 
       // Remove scripts that were merged
-      $todo = array_diff( $todo, $done );
+      $todo = array_diff( $status['todo'], $status['done'] );
 
       $todo[] = 'minit-' . $cache_ver;
 
@@ -386,7 +384,7 @@ namespace UsabilityDynamics\AMD {
     }
 
     public function async_init() {
-
+      Minit::log( "Doing [async_init]. " );
       global $wp_scripts;
 
       if( !is_object( $wp_scripts ) || empty( $wp_scripts->queue ) )
@@ -420,6 +418,8 @@ namespace UsabilityDynamics\AMD {
     }
 
     public function async_print() {
+
+      Minit::log( "Doing [async_print]. " );
 
       global $wp_scripts;
 

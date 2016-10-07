@@ -599,7 +599,7 @@ namespace UsabilityDynamics\AMD {
         $post = self::get_asset( $this->get( 'type' ) );
 
         if( !$post ) {
-          ChromePhp::log('wp-amd: Excluding asset because it is empty: ' .   $this->get( 'type' ) );
+          // ChromePhp::log('wp-amd: Excluding asset because it is empty: ' .   $this->get( 'type' ) );
           return;
         }
         //die( '<pre>' . print_r( $post, true ) . '</pre>' );

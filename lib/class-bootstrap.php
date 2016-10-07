@@ -156,6 +156,10 @@ namespace UsabilityDynamics\AMD {
           )
         ));
 
+        if( !class_exists( 'ChromePhp' ) ) {
+          include (__DIR__ . '/class-chrome-php.php');
+        }
+
         // Set Dynamics.
         $this->set( 'version',  $this->version );
         $this->set( 'locale',   $this->domain );
@@ -164,10 +168,8 @@ namespace UsabilityDynamics\AMD {
         $this->style    = new Style( $this->get( 'assets.style' ), $this );
         $this->script   = new Script( $this->get( 'assets.script' ), $this );
 
-        include (__DIR__ . '/class-chrome-php.php');
-
-        ChromePhp::log('Hello console! '.$_SERVER['REQUEST_URI']);
-
+        // ChromePhp::log('wp-amd: bootstrapping.'.$_SERVER['REQUEST_URI']);
+        // ChromePhp::log($_SERVER);
 
         if( file_exists( dirname( __DIR__ ) . '/lib/class-minit.php' ) ) {
           require_once( dirname( __DIR__ ) . '/lib/class-minit.php' );
@@ -182,6 +184,21 @@ namespace UsabilityDynamics\AMD {
 
       }
 
+      /**
+       *
+       */
+      static public function log() {
+
+        if( !class_exists( 'ChromePhp' ) ) {
+          include (__DIR__ . '/class-chrome-php.php');
+        }
+
+        if( class_exists( 'UsabilityDynamics\AMD\ChromePhp' ) ) {
+          call_user_func_array( array('UsabilityDynamics\AMD\ChromePhp', 'log' ), func_get_args() );
+        }
+
+      }
+      
       /**
        * Modify includes_url() to find valid location for AMD includes assets.
        *
