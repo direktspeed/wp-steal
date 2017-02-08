@@ -14,7 +14,7 @@
     "grunt-contrib-clean": "~1.0.0",
     "grunt-contrib-concat": "~1.0.1",
     "grunt-contrib-less": "~1.4.0",
-    "grunt-contrib-uglify": "~2.0.0",
+    "grunt-contrib-uglify": "~2.1.0",
     "grunt-contrib-watch": "~1.0.0",
     "grunt-contrib-yuidoc": "~1.0.0",
     "grunt-markdown": "~0.7.0",
