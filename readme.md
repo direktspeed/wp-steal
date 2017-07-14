@@ -15,6 +15,8 @@ Visit on WordPress.org: http://wordpress.org/plugins/wp-amd/
 
 ## Screenshots
 
+[![Greenkeeper badge](https://badges.greenkeeper.io/direktspeed/wp-steal.svg)](https://greenkeeper.io/)
+
 ![Script Editor](http://content.screencast.com/users/TwinCitiesTech.com/folders/Jing/media/1e02790f-83f4-418d-9e2e-218e1bae8686/00000685.png)
 ![Permalnk Settings](http://content.screencast.com/users/TwinCitiesTech.com/folders/Jing/media/ac1ff2ce-a50e-4c0d-a160-764e0884998c/00000683.png)
 ![Live CSS Editor](http://content.screencast.com/users/TwinCitiesTech.com/folders/Jing/media/1e02790f-83f4-418d-9e2e-218e1bae8686/00000685.png)
